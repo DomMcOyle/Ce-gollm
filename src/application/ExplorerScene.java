@@ -225,6 +225,15 @@ public class ExplorerScene extends Scene {
 		leftPane.setId(Constants.ID_LESS_DARKER_BOX);
 		
 		ChoiceBox<String> daySelector = new ChoiceBox<>();
+		daySelector.setPrefWidth(200);
+		/*
+		for(Team t: toShow.getTeams()) {
+			daySelector.getItems().add(t.getName());
+		}
+		TODO: se il torneo è a eliminazione/campionato non servono i gironi
+			altrimenti va aggiunto il coso a gironi
+		
+		*/
 	}
 	
 	
