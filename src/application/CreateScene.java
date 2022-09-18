@@ -9,6 +9,8 @@ import entities.Match;
 import entities.Player;
 import entities.Team;
 import entities.Tournament;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,6 +26,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -149,7 +153,14 @@ public class CreateScene extends Scene {
 				this.tournamentName = tournamentName.getText();
 				if(tournamentName.getText().trim()!="") {
 					if(tournamentType.getValue() != Constants.CREATION_CHAMP) {
+						
+						if(!power2(tmpTeams.size()) && tournamentType.getValue()==Constants.CREATION_ELIM) {
+							new AlertUtil().showAlert(Constants.ERROR_NOT_POWER, Alert.AlertType.ERROR);
+							return;
+						}
+						
 						this.setEncounters(tournamentType.getValue());
+						
 					} else {
 						//TODO: aggiungere torneo a campionato
 					}
@@ -157,7 +168,12 @@ public class CreateScene extends Scene {
 			}
 		});
 	}
-
+	
+	private boolean power2(int x) {
+		// returns true if x is a power of 2 and different from 1
+		return x != 0 && x!=1 && ((x & (x - 1)) == 0);
+	}
+	
 	private void setEncounters(String kind) {
 		BorderPane pane = new BorderPane();
 		pane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
@@ -183,7 +199,11 @@ public class CreateScene extends Scene {
 		int i = 1;
 		for(String k : tmpTeams.keySet()) {
 			internalPane.add(new Label(k), 0,i);
-			internalPane.add(new TextField(),1, i);
+			TextField tf = new TextField();
+			if(kind == Constants.CREATION_ELIM) {
+				tf.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+			}
+			internalPane.add(tf,1, i);
 			i = i + 1;
 		}
 		
@@ -205,9 +225,19 @@ public class CreateScene extends Scene {
 			HashMap<String, Integer> checkCorrectness = new HashMap<>();
 			tmpPairings = new HashMap<>();
 			String discriminant;
+			
 			for(int j=1; j<=(internalPane.getChildren().size()-2)/2; j++ ) {
 				discriminant =((TextField)this.getNodeByIndex(j, 1, internalPane)).getText().trim();
+				
 				if(!checkCorrectness.containsKey(discriminant)) {
+					if(kind == Constants.CREATION_ELIM) {
+						if(Integer.parseInt(discriminant)<1 || Integer.parseInt(discriminant)> tmpTeams.size()/2) {
+							new AlertUtil().showAlert("Identificativo del match inserito non valido, riprova. (Inserito: " +
+									discriminant + ", permessi tra 1 e " + tmpTeams.size()/2
+									, Alert.AlertType.ERROR);
+							return;
+						}
+					}
 					checkCorrectness.put(discriminant, 1);
 					tmpPairings.put(((Label)this.getNodeByIndex(j, 0, internalPane)).getText(), discriminant);
 				} else {
@@ -216,6 +246,7 @@ public class CreateScene extends Scene {
 						new AlertUtil().showAlert(Constants.ERROR_MIS_MATCH + discriminant, Alert.AlertType.ERROR);
 						return;
 					}
+					tmpPairings.put(((Label)this.getNodeByIndex(j, 0, internalPane)).getText(), discriminant);
 				}
 			}
 			
@@ -223,13 +254,8 @@ public class CreateScene extends Scene {
 				new AlertUtil().showAlert(Constants.ERROR_LESS_MATCH, Alert.AlertType.ERROR);
 				return;
 			}
-			Tournament t;
-			try {
-				t = parseTournament(kind);
-			} catch(IndexOutOfBoundsException ee) {
-				new AlertUtil().showAlert(Constants.ERROR_MISSING_DASH, Alert.AlertType.ERROR);
-				return;
-			}
+			Tournament t = parseTournament(kind);
+
 			Main.getTourList().add(new TournamentWrapper(t));
 			Main.setTournamentSelection();
 		});
@@ -255,9 +281,10 @@ public class CreateScene extends Scene {
 	    return result;
 	}
 	
-	private Tournament parseTournament(String kind) throws IndexOutOfBoundsException{
+	private Tournament parseTournament(String kind){
 		LinkedList<Team> teams = new LinkedList<>();
-		LinkedList<Match> pairings = new LinkedList<>();
+		Match[] arrPairings = new Match[tmpTeams.size()/2];
+		
 		for(String name: tmpTeams.keySet()) {
 			Team teamToAdd = new Team(name);
 			String[] playersRaw = tmpTeams.get(name).split("\n");
@@ -268,24 +295,24 @@ public class CreateScene extends Scene {
 			}
 			teams.add(teamToAdd);
 		}
+
+		
 		HashSet<String> placed = new HashSet<>();
 		for(Team t: teams) {
+			
 			if (!placed.contains(t.getName())) {
-				for(Team t2: teams) {
-					if(tmpPairings.get(t.getName())==tmpPairings.get(t2.getName())) {
+				for(Team t2: teams) {					
+					if(tmpPairings.get(t.getName()).equals(tmpPairings.get(t2.getName())) && t!=t2) {
 						placed.add(t.getName());
 						placed.add(t2.getName());
-						pairings.add(new Match(t,t2,'a'));
+						arrPairings[Integer.parseInt(tmpPairings.get(t.getName()))-1] = new Match(t,t2,'a');
+						break;
 					}
 				}
 			}
 		}
-		Match[] arrPairings = new Match[pairings.size()];
-		for(int i=0; i<pairings.size(); i++) {
-			arrPairings[i] = pairings.get(i);
-		}
+
 		//TODO: sistemare il codice per permettere i gironi
-		
 		//if(kind == Constants.CREATION_ELIM) {
 			return new EliminationTour(this.tournamentName, teams, setReturn.isSelected(),arrPairings);
 		//}

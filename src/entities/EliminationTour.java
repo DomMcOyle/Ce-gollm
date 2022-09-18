@@ -79,5 +79,6 @@ public class EliminationTour extends Tournament {
 		}
 		first_round.add(new_day);
 	}
+	
 
 }

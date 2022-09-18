@@ -72,7 +72,7 @@ public class Constants {
 	public static final String CONFIRM_DELETION = "Sicuro di voler cancellare il torneo ";
 	public static final String ERROR_MIS_MATCH = "Più di due squadre assegnate al match ";
 	public static final String ERROR_LESS_MATCH = "E' presente un girone/match con una sola squadra.";
-	public static final String ERROR_SERVER_UNREACHABLE = "Non e' stato possibile raggiungere il server";
+	public static final String ERROR_NOT_POWER = "Il numero di squadre non è consono per un torneo ad eliminazione.";
 	public static final String ERROR_INIT_CONNECTION = "Errore durante la connessione al server";
 	public static final String ERROR_SAVING_TREE = "Errore nel salvataggio dei dati da parte del server";
 	public static final String ERROR_LOADING_TOUR = "Errore durante il caricamento della lista dei tornei.\n"

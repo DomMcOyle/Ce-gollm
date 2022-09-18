@@ -12,7 +12,7 @@ public class Match implements Serializable {
 	
 	public Match(Team hometeam, Team outteam) {
 		this.hometeam = hometeam;
-		this.outteam = hometeam;
+		this.outteam = outteam;
 		this.homegoals = -1;
 		this.outgoals = -1;
 		this.group = '*';
@@ -20,7 +20,7 @@ public class Match implements Serializable {
 	
 	public Match(Team hometeam, Team outteam, char group) {
 		this.hometeam = hometeam;
-		this.outteam = hometeam;
+		this.outteam = outteam;
 		this.homegoals = -1;
 		this.outgoals = -1;
 		this.group = group;
@@ -65,5 +65,6 @@ public class Match implements Serializable {
 	public String toString() {
 		return hometeam.getName() + "-" + outteam.getName();
 	}
+
 	
 }

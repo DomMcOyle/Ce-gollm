@@ -26,7 +26,7 @@ public abstract class Tournament implements Serializable{
 	}
 	public Team getTeam(String name) {
 		for(Team t: teams) {
-			if(t.getName() == name){
+			if(t.getName().equals(name)){
 				return t;
 			}
 		}
