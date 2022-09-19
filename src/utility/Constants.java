@@ -108,7 +108,9 @@ public class Constants {
 	public static final String SERVER_OK = "OK";
 	public static final String SERVER_QUERY = "QUERY";
 	public static final char DEFAULT_GROUP = '*';
-
+	// for championships with an odd number of teams, it may be necessary to add a
+	// dummy team to indicate byes.
+	public static final String DUMMY_TEAM_NAME = " ";
 
 	// Contenuti di campi testuali
 	public static final String HELP_CONTENT_TEXT = "Programma per la creazione ed esplorazione di alberi di regressione.\n\n"

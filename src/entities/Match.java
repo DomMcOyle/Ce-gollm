@@ -64,6 +64,10 @@ public class Match implements Serializable {
 		return this.homegoals != -1;
 	}
 	
+	public boolean isBye() {
+		return this.hometeam.isDummy() || this.outteam.isDummy();
+	}
+	
 	public String toString() {
 		return hometeam.getName() + "-" + outteam.getName();
 	}

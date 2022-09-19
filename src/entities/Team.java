@@ -3,6 +3,8 @@ package entities;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+import utility.Constants;
+
 public class Team implements Serializable, Comparable<Team>{
 
 	private static final long serialVersionUID = -7550579557975939694L;
@@ -150,6 +152,12 @@ public class Team implements Serializable, Comparable<Team>{
 
 	public void setPenaltyPts(int penalty_pts) {
 		this.penalty_pts = penalty_pts;
+	}
+
+
+	public boolean isDummy() {
+		// a team is a dummy team if its name is " ", which is forbidden by creation
+		return this.name.equals(Constants.DUMMY_TEAM_NAME);
 	}
 	
 	
