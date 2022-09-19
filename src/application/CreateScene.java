@@ -305,7 +305,7 @@ public class CreateScene extends Scene {
 					if(tmpPairings.get(t.getName()).equals(tmpPairings.get(t2.getName())) && t!=t2) {
 						placed.add(t.getName());
 						placed.add(t2.getName());
-						arrPairings[Integer.parseInt(tmpPairings.get(t.getName()))-1] = new Match(t,t2,'a');
+						arrPairings[Integer.parseInt(tmpPairings.get(t.getName()))-1] = new Match(t,t2);
 						break;
 					}
 				}

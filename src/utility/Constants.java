@@ -107,6 +107,7 @@ public class Constants {
 	public static final String CLIENT_ABORT = "#ABORT";
 	public static final String SERVER_OK = "OK";
 	public static final String SERVER_QUERY = "QUERY";
+	public static final char DEFAULT_GROUP = '*';
 
 
 	// Contenuti di campi testuali

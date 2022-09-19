@@ -2,6 +2,8 @@ package entities;
 
 import java.io.Serializable;
 
+import utility.Constants;
+
 public class Match implements Serializable {
 	private static final long serialVersionUID = 270863940759776256L;
 	Team hometeam;
@@ -15,7 +17,7 @@ public class Match implements Serializable {
 		this.outteam = outteam;
 		this.homegoals = -1;
 		this.outgoals = -1;
-		this.group = '*';
+		this.group = Constants.DEFAULT_GROUP;
 	}
 	
 	public Match(Team hometeam, Team outteam, char group) {
