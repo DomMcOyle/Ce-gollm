@@ -148,7 +148,7 @@ public class CreateScene extends Scene {
 			Main.setTournamentSelection();
 		});
 		nextButton.setOnAction(e -> {
-			if (tmpTeams.size()<2 && tournamentName.getText()!=null) {
+			if (tmpTeams.size()>2 && tournamentName.getText()!=null) {
 				
 				
 				this.tournamentName = tournamentName.getText();

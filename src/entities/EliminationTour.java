@@ -2,6 +2,8 @@ package entities;
 
 import java.util.LinkedList;
 
+import utility.Constants;
+
 public class EliminationTour extends Tournament {
 
 	private static final long serialVersionUID = -193299888502831775L;
@@ -9,7 +11,7 @@ public class EliminationTour extends Tournament {
 	LinkedList<Match[]> second_round;
 	
 	public EliminationTour(String name, LinkedList<Team> teams, boolean with_ret, Match[] pairings) {
-		super(name, teams, with_ret);
+		super(name, teams, with_ret, Constants.CREATION_ELIM);
 		first_round = new LinkedList<>();
 		Match [] first_day = pairings;
 		first_round.add(first_day);
@@ -78,6 +80,17 @@ public class EliminationTour extends Tournament {
 			second_round.add(new_day_r);
 		}
 		first_round.add(new_day);
+	}
+
+	@Override
+	public LinkedList<Match[]> getDays(char group) {
+		return first_round;
+	}
+
+	@Override
+	public LinkedList<Match[]> getDaysR(char group) {
+		// TODO Auto-generated method stub
+		return second_round;
 	}
 	
 

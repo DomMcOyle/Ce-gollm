@@ -1,5 +1,8 @@
 package application;
 
+import java.util.LinkedList;
+
+import entities.Match;
 import entities.Player;
 import entities.Team;
 import entities.Tournament;
@@ -10,6 +13,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -71,12 +76,15 @@ public class ExplorerScene extends Scene {
 		updateButtons(Constants.BUTTON_TEAMS);
 		BorderPane centralPane = new BorderPane();
 
+		// create the central pane for the frame
 		framePane.setCenter(centralPane);
+		// add lateral scroll bar bar
 		VBox leftPane = new VBox();
 		leftPane.setAlignment(Pos.TOP_LEFT);
 		leftPane.setPadding(new Insets(25, 25, 25, 25));
 		leftPane.setSpacing(5d);
 		leftPane.setId(Constants.ID_LESS_DARKER_BOX);
+		Label selecTeam = new Label(Constants.TEAM_SELEC_LABEL);
 		ChoiceBox<String> teamSelector = new ChoiceBox<>();
 		teamSelector.setPrefWidth(200);
 		for(Team t: toShow.getTeams()) {
@@ -89,11 +97,12 @@ public class ExplorerScene extends Scene {
 		Label scoredGoals = new Label();
 		Label sufferedGoals = new Label();
 		Label diffGoals = new Label();
-		leftPane.getChildren().addAll(teamSelector,playedMatches, draws, wins, losses,scoredGoals, sufferedGoals, diffGoals);
+		leftPane.getChildren().addAll(selecTeam,teamSelector,playedMatches, draws, wins, losses,scoredGoals, sufferedGoals, diffGoals);
 		ScrollPane leftScroll = new ScrollPane(leftPane);
 		leftScroll.setFitToHeight(true);
 		centralPane.setLeft(leftScroll);
 		
+		// update team selection
 		teamSelector.setOnAction(e->{
 			String selection = teamSelector.getValue();
 			Team selectedTeam = toShow.getTeam(selection);
@@ -216,17 +225,94 @@ public class ExplorerScene extends Scene {
 	}
 	
 	private void showMatches() {
+		// update buttons
 		updateButtons(Constants.BUTTON_MATCHES);
+		// create new central panel
 		BorderPane centralPane = new BorderPane();
 		framePane.setCenter(centralPane);
+		
+		// create new lateral box
 		VBox leftPane = new VBox();
 		leftPane.setAlignment(Pos.TOP_LEFT);
 		leftPane.setPadding(new Insets(25, 25, 25, 25));
 		leftPane.setSpacing(5d);
 		leftPane.setId(Constants.ID_LESS_DARKER_BOX);
 		
+		// day selector
+		
 		ChoiceBox<String> daySelector = new ChoiceBox<>();
+		ChoiceBox<Character> groupSelector = new ChoiceBox<>();
+	
+		Label dayLabel = new Label(Constants.DAY_SELEC_LABEL);
+		leftPane.getChildren().addAll(dayLabel, daySelector);
 		daySelector.setPrefWidth(200);
+		if(toShow.getKind() == Constants.CREATION_GROUP) {
+			// TODO: add group visualization
+		
+			
+		} else {
+			// list all the "direct match"
+			LinkedList<Match[]> days = toShow.getDays(Constants.DEFAULT_GROUP);
+			for(int day = 1; day<=days.size(); day++) {
+				daySelector.getItems().add(Constants.DAY_NAME + day);
+			}
+			// list all rematchs (eventually)
+			if(toShow.withReturn()) {
+				LinkedList<Match[]> daysR = toShow.getDaysR(Constants.DEFAULT_GROUP);
+				for(int day = 1; day<=daysR.size(); day++) {
+					daySelector.getItems().add(Constants.DAY_NAME + day + Constants.RM_INDICATOR);
+				}
+			}
+		}
+		ScrollPane leftScroll = new ScrollPane(leftPane);
+		leftScroll.setFitToHeight(true);
+		centralPane.setLeft(leftScroll);
+		
+		daySelector.setOnAction(e -> {
+			int selection = Integer.parseInt(daySelector.getValue().split(" ")[1]);
+			Match[] selectedDay;
+			Character selectedGroup = (groupSelector.getItems().size()==0? Constants.DEFAULT_GROUP : groupSelector.getValue());
+			
+			if(daySelector.getValue().contains(Constants.RM_INDICATOR)){
+				selectedDay = toShow.getDaysR(selectedGroup).get(selection-1);	
+			} else {
+				selectedDay = toShow.getDays(selectedGroup).get(selection-1);	
+			}
+			GridPane matchesPane = new GridPane();
+			matchesPane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
+			matchesPane.setAlignment(Pos.CENTER_LEFT);
+			matchesPane.setHgap(20);
+			matchesPane.setVgap(10);
+			matchesPane.setPadding(new Insets(30,30,30,30));
+			ScrollPane matchesScroll = new ScrollPane(matchesPane);
+			
+			centralPane.setCenter(matchesScroll);
+			
+			for(int i=0; i<selectedDay.length; i++) {
+				Label matchName = new Label(selectedDay[i].toString());
+				Label dash = new Label(Constants.DASH_LABEL);
+				TextField homeResult = new TextField();
+				TextField outResult = new TextField();
+				homeResult.setPrefWidth(40);
+				outResult.setPrefWidth(40);
+				homeResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+				outResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+				Button update = new Button(Constants.BUTTON_UPDATE);
+				update.setId(Constants.ID_SMALL_BUTTON);
+				
+				matchesPane.add(matchName, 0, i);
+				matchesPane.add(homeResult, 1, i);
+				matchesPane.add(dash, 2, i);
+				matchesPane.add(outResult, 3, i );
+				matchesPane.add(update, 4, i);
+			}
+			
+			
+		});
+		
+		
+		
+		
 		/*
 		for(Team t: toShow.getTeams()) {
 			daySelector.getItems().add(t.getName());

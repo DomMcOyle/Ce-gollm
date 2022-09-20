@@ -20,7 +20,7 @@ public class ChampionshipTour extends Tournament {
 	
 	public ChampionshipTour(String name, LinkedList<Team> teams, boolean with_return, HashMap<Character, LinkedList<Team>> groups) {
 		
-		super(name, teams, with_return);
+		super(name, teams, with_return, (groups==null?Constants.CREATION_CHAMP:Constants.CREATION_GROUP));
 
 		first_round = new HashMap<>();
 		if(groups == null) {
@@ -48,6 +48,7 @@ public class ChampionshipTour extends Tournament {
 			LinkedList<Match[]> allDaysR = new LinkedList<>();
 			
 			// in each day fix the first team and "rotate" the others
+			// TODO: correggere rotazione
 			for(int day=0; day<actual_teams-1; day++) {
 				
 				Match [] currentDay = new Match[actual_teams/2];
@@ -88,6 +89,27 @@ public class ChampionshipTour extends Tournament {
 		}
 		
 		
+	}
+
+
+	@Override
+	public LinkedList<Match[]> getDays(char group) {
+		if(!with_groups) {
+			return first_round.get(Constants.DEFAULT_GROUP);
+		} else {
+			return null; // placeholder
+		}
+		
+	}
+
+
+	@Override
+	public LinkedList<Match[]> getDaysR(char group) {
+		if(!with_groups) {
+			return second_round.get(Constants.DEFAULT_GROUP);
+		} else {
+			return null; // placeholder
+		}
 	}
 
 }

@@ -69,7 +69,7 @@ public class Match implements Serializable {
 	}
 	
 	public String toString() {
-		return hometeam.getName() + "-" + outteam.getName();
+		return hometeam.getName() + " vs. " + outteam.getName();
 	}
 
 	

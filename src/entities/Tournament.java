@@ -9,11 +9,13 @@ public abstract class Tournament implements Serializable{
 	private String name;
 	private LinkedList<Team> teams;
 	boolean with_return;
+	String kind;
 	
-	public Tournament(String name, LinkedList<Team> teams, boolean with_return) {
+	public Tournament(String name, LinkedList<Team> teams, boolean with_return, String kind) {
 		this.name = name;
 		this.teams = teams;
 		this.with_return = with_return;
+		this.kind = kind;
 	}
 	public String getName() {
 		return name;
@@ -38,7 +40,13 @@ public abstract class Tournament implements Serializable{
 	public boolean withReturn() {
 		return this.with_return;
 	}
-
 	
+	public String getKind() {
+		return this.kind;
+	}
+	
+	public abstract LinkedList<Match[]> getDays(char group);
+	
+	public abstract LinkedList<Match[]> getDaysR(char group);
 	
 }
