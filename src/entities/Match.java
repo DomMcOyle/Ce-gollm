@@ -69,7 +69,12 @@ public class Match implements Serializable {
 	}
 	
 	public String toString() {
-		return hometeam.getName() + " vs. " + outteam.getName();
+		if (this.isBye()){
+			Team not_dummy = (this.hometeam.isDummy()?this.outteam:this.hometeam);
+			return not_dummy.getName() + " " + Constants.RECEIVES_BYE;
+		} else {
+			return hometeam.getName() + " vs. " + outteam.getName();
+		}
 	}
 
 	

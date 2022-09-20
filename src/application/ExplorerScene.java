@@ -270,7 +270,7 @@ public class ExplorerScene extends Scene {
 		centralPane.setLeft(leftScroll);
 		
 		daySelector.setOnAction(e -> {
-			int selection = Integer.parseInt(daySelector.getValue().split(" ")[1]);
+			int selection = Integer.parseInt(daySelector.getValue().split("[ (]")[1]);
 			Match[] selectedDay;
 			Character selectedGroup = (groupSelector.getItems().size()==0? Constants.DEFAULT_GROUP : groupSelector.getValue());
 			
@@ -291,21 +291,25 @@ public class ExplorerScene extends Scene {
 			
 			for(int i=0; i<selectedDay.length; i++) {
 				Label matchName = new Label(selectedDay[i].toString());
-				Label dash = new Label(Constants.DASH_LABEL);
-				TextField homeResult = new TextField();
-				TextField outResult = new TextField();
-				homeResult.setPrefWidth(40);
-				outResult.setPrefWidth(40);
-				homeResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
-				outResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
-				Button update = new Button(Constants.BUTTON_UPDATE);
-				update.setId(Constants.ID_SMALL_BUTTON);
-				
 				matchesPane.add(matchName, 0, i);
-				matchesPane.add(homeResult, 1, i);
-				matchesPane.add(dash, 2, i);
-				matchesPane.add(outResult, 3, i );
-				matchesPane.add(update, 4, i);
+				if(!selectedDay[i].isBye()) {
+					
+					Label dash = new Label(Constants.DASH_LABEL);
+					TextField homeResult = new TextField();
+					TextField outResult = new TextField();
+					homeResult.setPrefWidth(40);
+					outResult.setPrefWidth(40);
+					homeResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+					outResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+					Button update = new Button(Constants.BUTTON_UPDATE);
+					update.setId(Constants.ID_SMALL_BUTTON);
+					
+					
+					matchesPane.add(homeResult, 1, i);
+					matchesPane.add(dash, 2, i);
+					matchesPane.add(outResult, 3, i );
+					matchesPane.add(update, 4, i);
+				}
 			}
 			
 			

@@ -43,7 +43,8 @@ public class ChampionshipTour extends Tournament {
 			for(int id=0; id<actual_teams; id++) {
 				workPairing[id] = id;
 			}
-			int last;
+			int firstLast;
+			int secondLast;
 			LinkedList<Match[]> allDays = new LinkedList<>();
 			LinkedList<Match[]> allDaysR = new LinkedList<>();
 			
@@ -57,11 +58,24 @@ public class ChampionshipTour extends Tournament {
 							workList.get(workPairing[pairing]),
 							workList.get(workPairing[pairing + actual_teams/2]));
 				}
-				last = workPairing[actual_teams-1];
-				for(int shift=actual_teams-1; shift>1;shift--) {
+				System.out.println("prima");
+				for(Integer i: workPairing)
+					System.out.print(i + " ");
+				firstLast = workPairing[(actual_teams/2)-1];
+				secondLast = workPairing[(actual_teams/2)];
+				for(int shift=(actual_teams/2)-1; shift>1;shift--) {
 					workPairing[shift] = workPairing[shift-1];
 				}
-				workPairing[1] = last;
+				for(int shift=actual_teams/2; shift<actual_teams-1; shift++) {
+					workPairing[shift] = workPairing[shift+1];
+				}
+				workPairing[1] = secondLast;
+				workPairing[actual_teams-1]=firstLast;
+
+				System.out.println("dopo");
+				for(Integer i: workPairing)
+					System.out.print(i + " ");
+				
 				allDays.add(currentDay);
 				
 				//generate return
