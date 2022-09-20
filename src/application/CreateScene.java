@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import entities.ChampionshipTour;
 import entities.EliminationTour;
 import entities.Match;
 import entities.Player;
@@ -147,13 +148,14 @@ public class CreateScene extends Scene {
 			Main.setTournamentSelection();
 		});
 		nextButton.setOnAction(e -> {
-			if (!tmpTeams.isEmpty() && tournamentName.getText()!=null) {
+			if (tmpTeams.size()<2 && tournamentName.getText()!=null) {
 				
 				
 				this.tournamentName = tournamentName.getText();
 				if(tournamentName.getText().trim()!="") {
 					if(tournamentType.getValue() != Constants.CREATION_CHAMP) {
 						
+						// assume tornei ad eliminazione senza bye
 						if(!power2(tmpTeams.size()) && tournamentType.getValue()==Constants.CREATION_ELIM) {
 							new AlertUtil().showAlert(Constants.ERROR_NOT_POWER, Alert.AlertType.ERROR);
 							return;
@@ -162,7 +164,13 @@ public class CreateScene extends Scene {
 						this.setEncounters(tournamentType.getValue());
 						
 					} else {
-						//TODO: aggiungere torneo a campionato
+							Tournament t = parseTournament(tournamentType.getValue());
+	
+							Main.getTourList().add(new TournamentWrapper(t));
+							Main.setTournamentSelection();
+							
+							//TODO: aggiungere torneo a campionato
+						
 					}
 				}
 			}
@@ -175,6 +183,8 @@ public class CreateScene extends Scene {
 	}
 	
 	private void setEncounters(String kind) {
+		// function needed to show the group/match selection panel
+		// TODO: to be modified for the group tournament
 		BorderPane pane = new BorderPane();
 		pane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
 		
@@ -286,8 +296,11 @@ public class CreateScene extends Scene {
 		Match[] arrPairings = new Match[tmpTeams.size()/2];
 		
 		for(String name: tmpTeams.keySet()) {
+			// read teams
 			Team teamToAdd = new Team(name);
+			// for each of them, a player is created
 			String[] playersRaw = tmpTeams.get(name).split("\n");
+			// and added to the team
 			int i = 0;
 			for(String plname : playersRaw) {
 				teamToAdd.addPlayer(new Player(plname, teamToAdd.getName(),i));
@@ -296,26 +309,32 @@ public class CreateScene extends Scene {
 			teams.add(teamToAdd);
 		}
 
-		
-		HashSet<String> placed = new HashSet<>();
-		for(Team t: teams) {
-			
-			if (!placed.contains(t.getName())) {
-				for(Team t2: teams) {					
-					if(tmpPairings.get(t.getName()).equals(tmpPairings.get(t2.getName())) && t!=t2) {
-						placed.add(t.getName());
-						placed.add(t2.getName());
-						arrPairings[Integer.parseInt(tmpPairings.get(t.getName()))-1] = new Match(t,t2);
-						break;
+		// block of code to create pairings for an elimination tournament
+		if(kind == Constants.CREATION_ELIM) {
+			HashSet<String> placed = new HashSet<>();
+			for(Team t: teams) {
+				
+				if (!placed.contains(t.getName())) {
+					for(Team t2: teams) {					
+						if(tmpPairings.get(t.getName()).equals(tmpPairings.get(t2.getName())) && t!=t2) {
+							placed.add(t.getName());
+							placed.add(t2.getName());
+							arrPairings[Integer.parseInt(tmpPairings.get(t.getName()))-1] = new Match(t,t2);
+							break;
+						}
 					}
 				}
 			}
-		}
-
-		//TODO: sistemare il codice per permettere i gironi
-		//if(kind == Constants.CREATION_ELIM) {
+			
 			return new EliminationTour(this.tournamentName, teams, setReturn.isSelected(),arrPairings);
-		//}
+		} else if (kind == Constants.CREATION_CHAMP) {
+			
+			return new ChampionshipTour(this.tournamentName, teams, setReturn.isSelected(), null);
+		} else {
+			HashMap<Character, LinkedList<Team>> groups = null;
+			// TODO add group generation builder;
+			return new ChampionshipTour(this.tournamentName, teams, setReturn.isSelected(), groups); //placeholder
+		}
 		
 	}
 	

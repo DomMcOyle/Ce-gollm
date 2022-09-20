@@ -18,7 +18,7 @@ public class ChampionshipTour extends Tournament {
 	boolean with_groups;
 	
 	
-	public ChampionshipTour(String name, LinkedList<Team> teams, boolean with_return, HashMap<Team, Character> groups) {
+	public ChampionshipTour(String name, LinkedList<Team> teams, boolean with_return, HashMap<Character, LinkedList<Team>> groups) {
 		
 		super(name, teams, with_return);
 
@@ -60,7 +60,7 @@ public class ChampionshipTour extends Tournament {
 				for(int shift=actual_teams-1; shift>1;shift--) {
 					workPairing[shift] = workPairing[shift-1];
 				}
-				workPairing[2] = last;
+				workPairing[1] = last;
 				allDays.add(currentDay);
 				
 				//generate return
@@ -84,6 +84,7 @@ public class ChampionshipTour extends Tournament {
 			}
 		} else {
 			this.with_groups = true;
+			// TODO AGGIUNGERE GIRONI
 		}
 		
 		

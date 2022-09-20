@@ -5,6 +5,11 @@ import java.util.LinkedList;
 
 import utility.Constants;
 
+/*
+ * ASSUMPTIONS THAT CAN BE MADE ON TEAM:
+ * - no team can be called " " except for the dummy one
+ * - no two teams can have the same name (case sensitive)
+ */
 public class Team implements Serializable, Comparable<Team>{
 
 	private static final long serialVersionUID = -7550579557975939694L;

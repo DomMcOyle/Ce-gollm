@@ -67,6 +67,7 @@ public class ExplorerScene extends Scene {
 	}
 	
 	private void showTeams() {
+		// at the beginning update the buttons
 		updateButtons(Constants.BUTTON_TEAMS);
 		BorderPane centralPane = new BorderPane();
 
