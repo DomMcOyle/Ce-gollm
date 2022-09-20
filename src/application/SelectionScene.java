@@ -66,10 +66,12 @@ public class SelectionScene extends Scene {
 		});
 		
 		confirmTour.setOnAction(e->{
+			Tournament t = userFocus.getFocusedItem().getTournament();
+			Main.setTitle(Constants.WINDOW_NAME + " - " + t.getName() + " (" + t.getKind() + ")");
 			Main.setThisScene(new ExplorerScene(new BorderPane(), 
 					Constants.WINDOWW, 
 					Constants.WINDOWH,
-					userFocus.getFocusedItem().getTournament()));
+					t));
 		});
 		
 		selectionButtonsLayout.getChildren().addAll(addTour, removeTour, confirmTour);

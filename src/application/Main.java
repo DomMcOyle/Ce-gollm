@@ -30,6 +30,7 @@ public class Main extends Application {
 		try {
 			tournaments = FXCollections.observableArrayList();
 			mainStage = primaryStage;
+			mainStage.setTitle(Constants.WINDOW_NAME);
 			mainStage.setOnCloseRequest(e->{
 				dumpTournaments();
 			});
@@ -119,6 +120,10 @@ public class Main extends Application {
 	
 	public static ObservableList<TournamentWrapper> getTourList(){
 		return tournaments;
+	}
+	
+	public static void setTitle(String title) {
+		mainStage.setTitle(title);
 	}
 	
 }

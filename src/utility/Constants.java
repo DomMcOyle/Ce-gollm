@@ -18,7 +18,7 @@ public class Constants {
 
 	
 	// Titolo della finestra del programma
-	public static final String CLIENT_WINDOW_NAME = "Client";
+	public static final String WINDOW_NAME = "Ce Gollm";
 	public static final String HELP_WINDOW_NAME = "Aiuto";
 	
 	// Path per le risorse utilizzate nel programma

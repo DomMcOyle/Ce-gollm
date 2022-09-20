@@ -64,6 +64,7 @@ public class ExplorerScene extends Scene {
 		Button backButton = new Button(Constants.BUTTON_BACK);
 		backButton.setOnAction(e->{
 			Main.setTournamentSelection();
+			Main.setTitle(Constants.WINDOW_NAME);
 		});
 		bottomRow.getChildren().addAll(backButton);
 		
