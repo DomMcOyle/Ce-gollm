@@ -116,7 +116,7 @@ public class CreateScene extends Scene {
 		
 		addButton.setOnAction(e -> {
 			if(teamName.getText()!=null && teamPlayers.getText()!=null ) {
-				if(teamName.getText().trim()!="" && teamPlayers.getText().trim()!="") {
+				if(!teamName.getText().trim().equals("") && !teamPlayers.getText().trim().equals("")) {
 					if(!addedTeams.getItems().contains(teamName.getText().trim())) {
 						addedTeams.getItems().add(teamName.getText().trim());
 					}
@@ -131,7 +131,7 @@ public class CreateScene extends Scene {
 		
 		deleteButton.setOnAction(e-> {
 			if(teamName.getText()!=null) {
-				if(teamName.getText().trim()!="") {
+				if(!teamName.getText().trim().equals("")) {
 					tmpTeams.remove(teamName.getText().trim());
 					addedTeams.getItems().remove(teamName.getText().trim());
 					addedTeams.setValue("");
@@ -152,8 +152,8 @@ public class CreateScene extends Scene {
 				
 				
 				this.tournamentName = tournamentName.getText();
-				if(tournamentName.getText().trim()!="") {
-					if(tournamentType.getValue() != Constants.CREATION_CHAMP) {
+				if(!tournamentName.getText().trim().equals("")) {
+					if(!tournamentType.getValue().equals(Constants.CREATION_CHAMP)){
 						
 						// assume tornei ad eliminazione senza bye
 						if(!power2(tmpTeams.size()) && tournamentType.getValue().equals(Constants.CREATION_ELIM)) {

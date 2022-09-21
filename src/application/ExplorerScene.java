@@ -328,7 +328,6 @@ public class ExplorerScene extends Scene {
 					outResult.setPrefWidth(40);
 					homeResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
 					outResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
-					
 					if(currentMatch.hasBeenPlayed()) {
 						homeResult.setPromptText(String.valueOf(currentMatch.getHomegoals()));
 						outResult.setPromptText(String.valueOf(currentMatch.getOutgoals()));
@@ -336,10 +335,25 @@ public class ExplorerScene extends Scene {
 					Button update = new Button(Constants.BUTTON_UPDATE);
 					update.setId(Constants.ID_SMALL_BUTTON);
 					update.setOnAction(ee->{
-						
-						if(homeResult.getText()!=null&& outResult.getText()!=null) {
-							if(homeResult.getText()!="" && outResult.getText()!="") {
+						// this is some thrash to ease update
+						// alreadyPrompted is true if the match has already a result
+						boolean alreadyPrompted = currentMatch.hasBeenPlayed();
+						// if some results have been introduced or if the match has already a result..
+						if((homeResult.getText()!=null && outResult.getText()!=null)|| alreadyPrompted){
+							if(alreadyPrompted) {
+								// if the previous check was successfull because of the "already Prompted", we assume that
+								// if one wants to change the result, then it may need to change only a single result among the two
+								if(homeResult.getText().equals("") && !outResult.getText().equals("")) {
+									// in that case, we set the text in the TextField that isn't changed from the prompt (here's the shit)
+									homeResult.setText(homeResult.getPromptText());
+								} else if (!homeResult.getText().equals("") && outResult.getText().equals("")) {
+									// same here
+									outResult.setText(outResult.getPromptText());
+								}
+							}
+							if(!homeResult.getText().equals("") && !outResult.getText().equals("")) {
 								// if and only iff both results are updated, then the results of the match are updated
+								System.out.println("update");
 								Match.updateMatch(currentMatch,Integer.parseInt(homeResult.getText()), Integer.parseInt(outResult.getText()));
 								homeResult.setPromptText(homeResult.getText());
 								homeResult.setText("");
