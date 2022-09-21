@@ -19,8 +19,7 @@ public class Team implements Serializable, Comparable<Team>{
 	private int losses;
 	private int scoredGoals;
 	private int sufferedGoals;
-	private int points;
-	private int penalty_pts;
+	private int penaltyPts;
 	private LinkedList<Player> players;
 	
 	public Team(String name) {
@@ -30,20 +29,16 @@ public class Team implements Serializable, Comparable<Team>{
 		this.losses=0;
 		this.scoredGoals=0;
 		this.sufferedGoals=0;
-		this.points=0;
-		this.penalty_pts=0;
+		this.penaltyPts=0;
 		this.players = new LinkedList<>();
 	}
 	
 	
 	public int getPoints() {
-		return points;
+		return 3*wins.size() + draws - penaltyPts;
 	}
 
 
-	public void setPoints(int points) {
-		this.points = points;
-	}
 
 	public int getNumMatches() {
 		return this.getWins() + this.draws + this.losses;
@@ -125,9 +120,9 @@ public class Team implements Serializable, Comparable<Team>{
 	}
 	@Override
 	public int compareTo(Team o) {
-		if(this.points > o.getPoints()) {
+		if(this.getPoints() > o.getPoints()) {
 			return -1;
-		} else if(this.points < o.getPoints()) {
+		} else if(this.getPoints() < o.getPoints()) {
 			return 1;  
 		  
 		} else if(this.checkVictories(o)!=0) {
@@ -151,12 +146,12 @@ public class Team implements Serializable, Comparable<Team>{
 
 
 	public int getPenaltyPts() {
-		return penalty_pts;
+		return penaltyPts;
 	}
 
 
-	public void setPenaltyPts(int penalty_pts) {
-		this.penalty_pts = penalty_pts;
+	public void setPenaltyPts(int penaltyPts) {
+		this.penaltyPts = penaltyPts;
 	}
 
 
