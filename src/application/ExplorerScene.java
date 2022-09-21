@@ -293,17 +293,37 @@ public class ExplorerScene extends Scene {
 				Label matchName = new Label(selectedDay[i].toString());
 				matchesPane.add(matchName, 0, i);
 				if(!selectedDay[i].isBye()) {
-					
+					Match currentMatch = selectedDay[i];
 					Label dash = new Label(Constants.DASH_LABEL);
+					
 					TextField homeResult = new TextField();
 					TextField outResult = new TextField();
 					homeResult.setPrefWidth(40);
 					outResult.setPrefWidth(40);
 					homeResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
 					outResult.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+					
+					if(currentMatch.hasBeenPlayed()) {
+						homeResult.setPromptText(String.valueOf(currentMatch.getHomegoals()));
+						outResult.setPromptText(String.valueOf(currentMatch.getOutgoals()));
+					}
 					Button update = new Button(Constants.BUTTON_UPDATE);
 					update.setId(Constants.ID_SMALL_BUTTON);
-					
+					update.setOnAction(ee->{
+						
+						if(homeResult.getText()!=null&& outResult.getText()!=null) {
+							if(homeResult.getText()!="" && outResult.getText()!="") {
+								// if and only iff both results are updated, then the results of the match are updated
+								Match.updateMatch(currentMatch,Integer.parseInt(homeResult.getText()), Integer.parseInt(outResult.getText()));
+								homeResult.setPromptText(homeResult.getText());
+								homeResult.setText("");
+								outResult.setPromptText(outResult.getText());
+								outResult.setText("");
+								
+							}
+								
+						}
+					});
 					
 					matchesPane.add(homeResult, 1, i);
 					matchesPane.add(dash, 2, i);

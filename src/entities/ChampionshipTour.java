@@ -58,9 +58,7 @@ public class ChampionshipTour extends Tournament {
 							workList.get(workPairing[pairing]),
 							workList.get(workPairing[pairing + actual_teams/2]));
 				}
-				System.out.println("prima");
-				for(Integer i: workPairing)
-					System.out.print(i + " ");
+
 				firstLast = workPairing[(actual_teams/2)-1];
 				secondLast = workPairing[(actual_teams/2)];
 				for(int shift=(actual_teams/2)-1; shift>1;shift--) {
@@ -72,9 +70,6 @@ public class ChampionshipTour extends Tournament {
 				workPairing[1] = secondLast;
 				workPairing[actual_teams-1]=firstLast;
 
-				System.out.println("dopo");
-				for(Integer i: workPairing)
-					System.out.print(i + " ");
 				
 				allDays.add(currentDay);
 				

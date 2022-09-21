@@ -164,6 +164,14 @@ public class Team implements Serializable, Comparable<Team>{
 		// a team is a dummy team if its name is " ", which is forbidden by creation
 		return this.name.equals(Constants.DUMMY_TEAM_NAME);
 	}
+
+
+	public void removeWin(Team outteam) {
+		// removes a win from the list of wins
+		if( this.wins.contains(outteam) ) {
+			this.wins.remove(outteam);
+		}
+	}
 	
 	
 
