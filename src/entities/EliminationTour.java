@@ -29,18 +29,29 @@ public class EliminationTour extends Tournament {
 	
 	public void generateNewRound() throws TournamentException {
 		Match[] last_day = first_round.getLast();
-		
+		if(last_day.length == 1) {
+			throw new TournamentException("Finale già generata.");
+		}
 		for(int i =0; i<last_day.length; i++) {
 			if(!last_day[i].hasBeenPlayed()) {
-				throw new TournamentException("Match " + last_day[i].toString() + "non disputato." );
+				throw new TournamentException("Match " + last_day[i].toString() + " non disputato." );
+			}
+			if(last_day[i].getHomegoals() == last_day[i].getOutgoals() && !with_return) {
+				throw new TournamentException("Match " + last_day[i].toString() + " finito in pareggio." );
 			}
 		}
 		
 		if(with_return) {
-			Match[] last_day_r = first_round.getLast();
+			Match[] last_day_r = second_round.getLast();
 			for(int i =0; i<last_day.length; i++) {
+
 				if(!last_day_r[i].hasBeenPlayed()) {
-					throw new TournamentException("Match " + last_day[i].toString() + "(ritorno)non disputato." );
+					System.out.println("ao");
+					throw new TournamentException("Match " + last_day[i].toString() + "(ritorno) non disputato." );
+				}
+
+				if(last_day[i].getHomegoals() + last_day_r[i].getOutgoals() == last_day[i].getOutgoals() + last_day_r[i].getHomegoals()) {
+					throw new TournamentException("Impossibile determinare vincitore tra " + last_day[i] + ".");
 				}
 			}
 		}
@@ -65,7 +76,7 @@ public class EliminationTour extends Tournament {
 			}
 			
 		} else {
-			Match[] last_day_r = first_round.getLast();
+			Match[] last_day_r = second_round.getLast();
 			Match[] new_day_r = new Match[last_day.length/2];
 			for(int i =0; i<last_day.length; i = i+2) {
 				hg1 = last_day[i].getHomegoals()+last_day_r[i].getOutgoals(); //invertiti

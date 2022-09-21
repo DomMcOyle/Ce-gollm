@@ -2,13 +2,16 @@ package application;
 
 import java.util.LinkedList;
 
+import entities.EliminationTour;
 import entities.Match;
 import entities.Player;
 import entities.Team;
 import entities.Tournament;
+import entities.TournamentException;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -247,7 +250,7 @@ public class ExplorerScene extends Scene {
 		Label dayLabel = new Label(Constants.DAY_SELEC_LABEL);
 		leftPane.getChildren().addAll(dayLabel, daySelector);
 		daySelector.setPrefWidth(200);
-		if(toShow.getKind() == Constants.CREATION_GROUP) {
+		if(toShow.getKind().equals(Constants.CREATION_GROUP)) {
 			// TODO: add group visualization
 		
 			
@@ -264,6 +267,29 @@ public class ExplorerScene extends Scene {
 					daySelector.getItems().add(Constants.DAY_NAME + day + Constants.RM_INDICATOR);
 				}
 			}
+		}
+		
+		if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
+			Button generateNext = new Button(Constants.BUTTON_GENERATE_NEW_ELIM);
+			generateNext.setId(Constants.ID_SMALL_BUTTON);
+			leftPane.getChildren().add(generateNext);
+			
+			generateNext.setOnAction(e -> {
+				try {
+					((EliminationTour)toShow).generateNewRound();
+				} catch(TournamentException te){
+					new AlertUtil().showAlert(Constants.ERROR_CANNOT_GENERATE_NEXT_ROUND + te.getMessage(), Alert.AlertType.ERROR);
+					return;
+				}
+				
+				
+				if(toShow.withReturn()) {
+					daySelector.getItems().add(daySelector.getItems().size()/2,Constants.DAY_NAME + (daySelector.getItems().size()/2 + 1));
+					daySelector.getItems().add(Constants.DAY_NAME + (daySelector.getItems().size()/2  + 1) + Constants.RM_INDICATOR);
+				} else {
+					daySelector.getItems().add(Constants.DAY_NAME + (daySelector.getItems().size() + 1));
+				}
+			});
 		}
 		ScrollPane leftScroll = new ScrollPane(leftPane);
 		leftScroll.setFitToHeight(true);

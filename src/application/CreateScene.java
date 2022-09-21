@@ -156,7 +156,7 @@ public class CreateScene extends Scene {
 					if(tournamentType.getValue() != Constants.CREATION_CHAMP) {
 						
 						// assume tornei ad eliminazione senza bye
-						if(!power2(tmpTeams.size()) && tournamentType.getValue()==Constants.CREATION_ELIM) {
+						if(!power2(tmpTeams.size()) && tournamentType.getValue().equals(Constants.CREATION_ELIM)) {
 							new AlertUtil().showAlert(Constants.ERROR_NOT_POWER, Alert.AlertType.ERROR);
 							return;
 						}
@@ -196,7 +196,7 @@ public class CreateScene extends Scene {
 		
 		Label topTeam = new Label(Constants.CREATION_TEAM_PROMPT);
 		Label topKind;
-		if(kind == Constants.CREATION_ELIM) {
+		if(kind.equals(Constants.CREATION_ELIM)) {
 			topKind = new Label("Match");
 		} else {
 			topKind = new Label("Girone");
@@ -210,7 +210,7 @@ public class CreateScene extends Scene {
 		for(String k : tmpTeams.keySet()) {
 			internalPane.add(new Label(k), 0,i);
 			TextField tf = new TextField();
-			if(kind == Constants.CREATION_ELIM) {
+			if(kind.equals(Constants.CREATION_ELIM)) {
 				tf.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
 			}
 			internalPane.add(tf,1, i);
@@ -240,7 +240,7 @@ public class CreateScene extends Scene {
 				discriminant =((TextField)this.getNodeByIndex(j, 1, internalPane)).getText().trim();
 				
 				if(!checkCorrectness.containsKey(discriminant)) {
-					if(kind == Constants.CREATION_ELIM) {
+					if(kind.equals(Constants.CREATION_ELIM)) {
 						if(Integer.parseInt(discriminant)<1 || Integer.parseInt(discriminant)> tmpTeams.size()/2) {
 							new AlertUtil().showAlert("Identificativo del match inserito non valido, riprova. (Inserito: " +
 									discriminant + ", permessi tra 1 e " + tmpTeams.size()/2
@@ -252,7 +252,7 @@ public class CreateScene extends Scene {
 					tmpPairings.put(((Label)this.getNodeByIndex(j, 0, internalPane)).getText(), discriminant);
 				} else {
 					checkCorrectness.put(discriminant, checkCorrectness.get(discriminant)+1);
-					if(kind == Constants.CREATION_ELIM && checkCorrectness.get(discriminant)>2) {
+					if(kind.equals(Constants.CREATION_ELIM) && checkCorrectness.get(discriminant)>2) {
 						new AlertUtil().showAlert(Constants.ERROR_MIS_MATCH + discriminant, Alert.AlertType.ERROR);
 						return;
 					}
@@ -310,7 +310,7 @@ public class CreateScene extends Scene {
 		}
 
 		// block of code to create pairings for an elimination tournament
-		if(kind == Constants.CREATION_ELIM) {
+		if(kind.equals(Constants.CREATION_ELIM)) {
 			HashSet<String> placed = new HashSet<>();
 			for(Team t: teams) {
 				
@@ -327,7 +327,7 @@ public class CreateScene extends Scene {
 			}
 			
 			return new EliminationTour(this.tournamentName, teams, setReturn.isSelected(),arrPairings);
-		} else if (kind == Constants.CREATION_CHAMP) {
+		} else if (kind.equals(Constants.CREATION_CHAMP)) {
 			
 			return new ChampionshipTour(this.tournamentName, teams, setReturn.isSelected(), null);
 		} else {

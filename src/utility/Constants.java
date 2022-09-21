@@ -45,6 +45,7 @@ public class Constants {
 	public static final String BUTTON_MINUS = "-";
 	public static final String CHECK_RETURN = "Con ritorno";
 	public static final String BUTTON_UPDATE = "Aggiorna";
+	public static final String BUTTON_GENERATE_NEW_ELIM = "Prossimo Round";
 	
 	// Contenuti delle label
 	public static final String DAY_NAME = "Giornata ";
@@ -63,7 +64,7 @@ public class Constants {
 	public static final String ERROR_LOADING_TOUR = "Errore durante il caricamento della lista dei tornei.\n";
 	public static final String ERROR_SAVING_TOUR = "Errore durante la memorizzazione dei Tornei";
 	public static final String CONTENT_TEXT_NO_TOUR_INFO = "Non e' stato trovato il file \"saved_tournaments\" con i tornei salvati.\n";
-
+	public static final String ERROR_CANNOT_GENERATE_NEXT_ROUND = "Non è possibile generare il prossimo round: ";
 
 
 	// CSS IDs
@@ -82,6 +83,8 @@ public class Constants {
 	// dummy team to indicate byes.
 	public static final String DUMMY_TEAM_NAME = " ";
 	public static final String PATH_SERIAL_TOUR = "./saved_tournaments.sticki";
+	
+	
 	
 	
 	
