@@ -150,12 +150,12 @@ public class CreateScene extends Scene {
 		nextButton.setOnAction(e -> {
 			if (tmpTeams.size()>2 && tournamentName.getText()!=null) {
 				
-				
 				this.tournamentName = tournamentName.getText();
+				
 				if(!tournamentName.getText().trim().equals("")) {
-					if(!tournamentType.getValue().equals(Constants.CREATION_CHAMP)){
-						
-						// assume tornei ad eliminazione senza bye
+					if(tournamentType.getValue().equals(Constants.CREATION_ELIM)){
+						// create elimination tournament
+						// assumes tournaments without bye or irregular number
 						if(!power2(tmpTeams.size()) && tournamentType.getValue().equals(Constants.CREATION_ELIM)) {
 							new AlertUtil().showAlert(Constants.ERROR_NOT_POWER, Alert.AlertType.ERROR);
 							return;
@@ -163,14 +163,17 @@ public class CreateScene extends Scene {
 						
 						this.setEncounters(tournamentType.getValue());
 						
-					} else {
-							Tournament t = parseTournament(tournamentType.getValue());
-	
-							Main.getTourList().add(new TournamentWrapper(t));
-							Main.setTournamentSelection();
+					} else if (tournamentType.getValue().equals(Constants.CREATION_GROUP)){
+						// create group	tournament
 							
-							//TODO: aggiungere torneo a campionato
+						this.setEncounters(tournamentType.getValue());
 						
+					} else {
+						// create championship
+						Tournament t = parseTournament(tournamentType.getValue());
+						
+						Main.getTourList().add(new TournamentWrapper(t));
+						Main.setTournamentSelection();
 					}
 				}
 			}
@@ -184,7 +187,7 @@ public class CreateScene extends Scene {
 	
 	private void setEncounters(String kind) {
 		// function needed to show the group/match selection panel
-		// TODO: to be modified for the group tournament
+
 		BorderPane pane = new BorderPane();
 		pane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
 		
@@ -212,6 +215,8 @@ public class CreateScene extends Scene {
 			TextField tf = new TextField();
 			if(kind.equals(Constants.CREATION_ELIM)) {
 				tf.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+			} else if (kind.equals(Constants.CREATION_GROUP)) {
+				tf.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[a-zA-Z0-9]?") ? change : null));
 			}
 			internalPane.add(tf,1, i);
 			i = i + 1;
@@ -232,38 +237,56 @@ public class CreateScene extends Scene {
 		});
 		
 		next.setOnAction(e -> {
+			// checkCorrectness is used to check whether the id of the match is correct or if there are more or less than 2
+			// teams involved in the same match (in elim) or whether there are groups with a single team (in groups)
 			HashMap<String, Integer> checkCorrectness = new HashMap<>();
 			tmpPairings = new HashMap<>();
 			String discriminant;
 			
 			for(int j=1; j<=(internalPane.getChildren().size()-2)/2; j++ ) {
+				// recover number of match/char of group
 				discriminant =((TextField)this.getNodeByIndex(j, 1, internalPane)).getText().trim();
-				
+				// check empty strings
+				if(discriminant.equals("") || discriminant == null) {
+					new AlertUtil().showAlert("Match/Girone non assegnato alla squadra " +
+							((TextField)this.getNodeByIndex(j, 0, internalPane)).getText(), Alert.AlertType.ERROR);
+				}
 				if(!checkCorrectness.containsKey(discriminant)) {
+					// if the discrmininant is new, be sure it belongs to an acceptable range of values
 					if(kind.equals(Constants.CREATION_ELIM)) {
+							
 						if(Integer.parseInt(discriminant)<1 || Integer.parseInt(discriminant)> tmpTeams.size()/2) {
+							
 							new AlertUtil().showAlert("Identificativo del match inserito non valido, riprova. (Inserito: " +
 									discriminant + ", permessi tra 1 e " + tmpTeams.size()/2
 									, Alert.AlertType.ERROR);
 							return;
 						}
+					
 					}
+					//update check correctness
 					checkCorrectness.put(discriminant, 1);
 					tmpPairings.put(((Label)this.getNodeByIndex(j, 0, internalPane)).getText(), discriminant);
+					
 				} else {
 					checkCorrectness.put(discriminant, checkCorrectness.get(discriminant)+1);
+					// check in case of elimination tournament whether there are two or more teams associated with a specific match
 					if(kind.equals(Constants.CREATION_ELIM) && checkCorrectness.get(discriminant)>2) {
+						
 						new AlertUtil().showAlert(Constants.ERROR_MIS_MATCH + discriminant, Alert.AlertType.ERROR);
 						return;
 					}
+					
 					tmpPairings.put(((Label)this.getNodeByIndex(j, 0, internalPane)).getText(), discriminant);
 				}
 			}
 			
 			if(checkCorrectness.values().contains(1)) {
+				// check if there is a match/group with a single team
 				new AlertUtil().showAlert(Constants.ERROR_LESS_MATCH, Alert.AlertType.ERROR);
 				return;
 			}
+			
 			Tournament t = parseTournament(kind);
 
 			Main.getTourList().add(new TournamentWrapper(t));
@@ -331,9 +354,23 @@ public class CreateScene extends Scene {
 			
 			return new ChampionshipTour(this.tournamentName, teams, setReturn.isSelected(), null);
 		} else {
-			HashMap<Character, LinkedList<Team>> groups = null;
-			// TODO add group generation builder;
-			return new ChampionshipTour(this.tournamentName, teams, setReturn.isSelected(), groups); //placeholder
+			HashMap<Character, LinkedList<Team>> groups = new HashMap<>();
+			
+			for(Team t: teams) {
+				Character group = tmpPairings.get(t.getName()).charAt(0);
+				
+				if(groups.keySet().contains(group)) {
+					groups.get(group).add(t);
+					
+				} else {
+					
+					LinkedList<Team> newlist = new LinkedList<>();
+					newlist.add(t);
+					groups.put(group, newlist);
+				}
+			}
+			
+			return new ChampionshipTour(this.tournamentName, teams, setReturn.isSelected(), groups);
 		}
 		
 	}
