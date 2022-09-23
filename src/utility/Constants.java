@@ -55,6 +55,8 @@ public class Constants {
 	public static final String MATCH_TITLE_LABEL = "Partita";
 	public static final String DASH_LABEL = "-";
 	public static final String RECEIVES_BYE = "(bye)";
+	public static final String GROUP_NAME = "Girone ";
+	public static final String GROUP_SELEC_LABEL = "Gironi:";
 
 	// Contenuti delle finestre di alert
 	public static final String CONFIRM_DELETION = "Sicuro di voler cancellare il torneo ";
@@ -83,6 +85,8 @@ public class Constants {
 	// dummy team to indicate byes.
 	public static final String DUMMY_TEAM_NAME = " ";
 	public static final String PATH_SERIAL_TOUR = "./saved_tournaments.sticki";
+	
+	
 	
 	
 	

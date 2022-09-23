@@ -1,7 +1,9 @@
 package application;
 
 import java.util.LinkedList;
+import java.util.Set;
 
+import entities.ChampionshipTour;
 import entities.EliminationTour;
 import entities.Match;
 import entities.Player;
@@ -245,14 +247,37 @@ public class ExplorerScene extends Scene {
 		// day selector
 		
 		ChoiceBox<String> daySelector = new ChoiceBox<>();
-		ChoiceBox<Character> groupSelector = new ChoiceBox<>();
+		ChoiceBox<String> groupSelector = new ChoiceBox<>();
 	
 		Label dayLabel = new Label(Constants.DAY_SELEC_LABEL);
-		leftPane.getChildren().addAll(dayLabel, daySelector);
+		Label groupLabel = new Label(Constants.GROUP_SELEC_LABEL);
 		daySelector.setPrefWidth(200);
 		if(toShow.getKind().equals(Constants.CREATION_GROUP)) {
-			// TODO: add group visualization
-		
+
+			Set<Character> groups = ((ChampionshipTour)toShow).getGroups();
+			for(Character g: groups) {
+				groupSelector.getItems().add(Constants.GROUP_NAME + g);
+			}
+			groupSelector.setOnAction(e->{
+				LinkedList<Match[]> days = toShow.getDays(groupSelector.getValue().charAt(groupSelector.getValue().length() - 1));
+				daySelector.getSelectionModel().clearSelection();
+				daySelector.getItems().clear();
+				for(int day = 1; day<=days.size(); day++) {
+					daySelector.getItems().add(Constants.DAY_NAME + day);
+				}
+				if(toShow.withReturn()) {
+					// add return eventually
+					LinkedList<Match[]> daysR = toShow.getDaysR(groupSelector.getValue().charAt(groupSelector.getValue().length() - 1));
+					for(int day = 1; day<=daysR.size(); day++) {
+						daySelector.getItems().add(Constants.DAY_NAME + day + Constants.RM_INDICATOR);
+					}
+				}
+				// empty the center part
+				
+				centralPane.setCenter(null);
+				
+			});
+			leftPane.getChildren().addAll(groupLabel, groupSelector);
 			
 		} else {
 			// list all the "direct match"
@@ -268,6 +293,7 @@ public class ExplorerScene extends Scene {
 				}
 			}
 		}
+		leftPane.getChildren().addAll(dayLabel, daySelector);
 		
 		if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
 			Button generateNext = new Button(Constants.BUTTON_GENERATE_NEW_ELIM);
@@ -296,9 +322,15 @@ public class ExplorerScene extends Scene {
 		centralPane.setLeft(leftScroll);
 		
 		daySelector.setOnAction(e -> {
+			if(daySelector.getValue()==null) {
+				// this check is needed because daySelector setOnAction is triggered if the selector is updated
+				return;
+			}
 			int selection = Integer.parseInt(daySelector.getValue().split("[ (]")[1]);
 			Match[] selectedDay;
-			Character selectedGroup = (groupSelector.getItems().size()==0? Constants.DEFAULT_GROUP : groupSelector.getValue());
+			Character selectedGroup = (groupSelector.getItems().size()==0? 
+					Constants.DEFAULT_GROUP : 
+						groupSelector.getValue().charAt(groupSelector.getValue().length() - 1));
 			
 			if(daySelector.getValue().contains(Constants.RM_INDICATOR)){
 				selectedDay = toShow.getDaysR(selectedGroup).get(selection-1);	
@@ -353,7 +385,6 @@ public class ExplorerScene extends Scene {
 							}
 							if(!homeResult.getText().equals("") && !outResult.getText().equals("")) {
 								// if and only iff both results are updated, then the results of the match are updated
-								System.out.println("update");
 								Match.updateMatch(currentMatch,Integer.parseInt(homeResult.getText()), Integer.parseInt(outResult.getText()));
 								homeResult.setPromptText(homeResult.getText());
 								homeResult.setText("");
