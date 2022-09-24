@@ -12,6 +12,7 @@ import entities.Tournament;
 import entities.TournamentException;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -135,11 +136,11 @@ public class ExplorerScene extends Scene {
 			
 			centralPane.setCenter(playerScroll);
 			
-			Label playerName = new Label("Giocatore");
-			Label playerGoal = new Label("Gol");
-			Label playerAssist = new Label("Assist");
-			Label playerReds = new Label("ROSSI");
-			Label playerYellows = new Label("GIALLI");
+			Label playerName = new Label(Constants.PLAYER_NAME_LABEL);
+			Label playerGoal = new Label(Constants.GOALS_LABEL);
+			Label playerAssist = new Label(Constants.ASSISTS_LABEL);
+			Label playerReds = new Label("Rossi");
+			Label playerYellows = new Label("Gialli");
 			playerName.setId(Constants.ID_PREDICTION_LABEL);
 			playerGoal.setId(Constants.ID_PREDICTION_LABEL);
 			playerAssist.setId(Constants.ID_PREDICTION_LABEL);
@@ -468,12 +469,22 @@ public class ExplorerScene extends Scene {
 		Label losses = new Label(Constants.LOSSES_LABEL);
 		Label draws = new Label(Constants.DRAWS_LABEL);
 		Label points = new Label(Constants.POINTS_LABEL);
-		points.setId(Constants.ID_SERVER_LABEL);
 		Label scoredGoals = new Label(Constants.SCORED_LABEL);
 		Label sufferedGoals = new Label(Constants.SUFFERED_LABEL);
 		Label diffGoals = new Label(Constants.DIFF_LABEL);
 		Label penaltyPoints = new Label(Constants.PENALTY_LABEL);
 		
+		teamLabel.setId(Constants.ID_PREDICTION_LABEL);
+		playedMatches.setId(Constants.ID_PREDICTION_LABEL);
+		wins.setId(Constants.ID_PREDICTION_LABEL);
+		losses.setId(Constants.ID_PREDICTION_LABEL);
+		draws.setId(Constants.ID_PREDICTION_LABEL);
+		points.setId(Constants.ID_PREDICTION_LABEL);
+		scoredGoals.setId(Constants.ID_PREDICTION_LABEL);
+		sufferedGoals.setId(Constants.ID_PREDICTION_LABEL);
+		diffGoals.setId(Constants.ID_PREDICTION_LABEL);
+		penaltyPoints.setId(Constants.ID_PREDICTION_LABEL);
+
 		topPane.add(teamLabel,1 ,0);
 		topPane.add(playedMatches, 2, 0);
 		topPane.add(wins, 3, 0);
@@ -539,9 +550,121 @@ public class ExplorerScene extends Scene {
 	
 	private void showTopPlayers() {
 		updateButtons(Constants.BUTTON_PLAYERS);
+		// dont'show top if the tournament is an elimination one
+		if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
+			Label noTop = new Label(Constants.WARN_NO_TOP);
+			framePane.setCenter(noTop);
+			return;
+		}
+		BorderPane centralPane = new BorderPane();
+		framePane.setCenter(centralPane);
+		VBox leftPane = new VBox();
+		leftPane.setAlignment(Pos.TOP_LEFT);
+		leftPane.setPadding(new Insets(25, 25, 25, 25));
+		leftPane.setSpacing(5d);
+		leftPane.setId(Constants.ID_LESS_DARKER_BOX);
+		
+		Button goalButton = new Button(Constants.BUTTON_GOALS);
+		Button assistButton = new Button(Constants.BUTTON_ASSISTS);
+		goalButton.setOnAction(e->{
+			centralPane.setCenter(generateTopPlayers(Constants.GENERATE_GOALS));
+			goalButton.setDisable(true);
+			assistButton.setDisable(false);
+		});
+		assistButton.setOnAction(e->{
+			centralPane.setCenter(generateTopPlayers(Constants.GENERATE_ASSISTS));
+			goalButton.setDisable(false);
+			assistButton.setDisable(true);
+		});
+		goalButton.setId(Constants.ID_SMALL_BUTTON);
+		assistButton.setId(Constants.ID_SMALL_BUTTON);
+		
+		leftPane.getChildren().addAll(goalButton, assistButton);
+		centralPane.setLeft(leftPane);
+		
 		
 	}
 	
+	private Node generateTopPlayers(String kind) {
+		LinkedList<Player> playerList = new LinkedList<>();
+		LinkedList<Player> sortedList = new LinkedList<>();
+		LinkedList<Team> teamList = new LinkedList<>();
+		Player top;
+		int compResult;
+		
+		if(toShow.getKind().equals(Constants.CREATION_CHAMP)) {
+			teamList.addAll(((ChampionshipTour)toShow).getTop(Constants.DEFAULT_GROUP));
+		} else {
+			Set<Character> groups = ((ChampionshipTour)toShow).getGroups();
+			for(Character g: groups)
+				teamList.addAll(((ChampionshipTour)toShow).getTop(g));
+		}
+		
+		for(Team t: teamList) {
+			playerList.addAll(t.getPlayers());
+		}
+		// sortedList creation
+		while(!playerList.isEmpty()) {
+			top = playerList.getFirst();
+			
+			for(int i=1; i<playerList.size();i++) {
+				
+				compResult = playerList.get(i).topCompare(top,kind);
+				if(compResult<0) {
+					top = playerList.get(i);
+				} else if(compResult==0) {
+					// smaller index = team with an higher position
+					if(teamList.indexOf(toShow.getTeam(top.getTeamname())) > 
+					teamList.indexOf(toShow.getTeam(playerList.get(i).getTeamname()))){
+						top = playerList.get(i);
+					}
+				}
+			}
+			
+			sortedList.addLast(top);
+			playerList.remove(top);
+		}
+		
+		GridPane topPane = new GridPane();
+		topPane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
+		topPane.setAlignment(Pos.CENTER_LEFT);
+		topPane.setHgap(20);
+		topPane.setVgap(10);
+		topPane.setPadding(new Insets(30,30,30,30));
+		ScrollPane topScroll = new ScrollPane(topPane);
+		
+		Label playerName = new Label(Constants.PLAYER_NAME_LABEL);
+		Label teamLabel = new Label(Constants.TEAM_NAME_LABEL);
+		Label value = new Label("");
+		
+		if(kind.equals(Constants.GENERATE_GOALS)) {
+			value.setText(Constants.GOALS_LABEL);
+		} else if (kind.equals(Constants.GENERATE_ASSISTS)) {
+			value.setText(Constants.ASSISTS_LABEL);
+		}
+		
+		playerName.setId(Constants.ID_PREDICTION_LABEL);
+		teamLabel.setId(Constants.ID_PREDICTION_LABEL);
+		value.setId(Constants.ID_PREDICTION_LABEL);
+		
+		topPane.add(playerName, 1, 0);
+		topPane.add(teamLabel,2 ,0);
+		topPane.add(value, 3, 0);
+		
+		for(int i=0; i<sortedList.size(); i++ ) {
+			topPane.add(new Label(String.valueOf(i+1) + "."), 0, i+1);
+			topPane.add(new Label(sortedList.get(i).getName()), 1, i+1);
+			topPane.add(new Label(sortedList.get(i).getTeamname()), 2, i+1);
+			if(kind.equals(Constants.GENERATE_GOALS)) {
+				topPane.add(new Label(String.valueOf(sortedList.get(i).getGoals())), 3, i+1);
+			} else if (kind.equals(Constants.GENERATE_ASSISTS)) {
+				topPane.add(new Label(String.valueOf(sortedList.get(i).getAssists())), 3, i+1);
+			}
+		}
+			
+		return topScroll;
+	}
+
 	private void updateButtons(String pressedButton) {
 		switch(pressedButton) {
 		case Constants.BUTTON_TEAMS:

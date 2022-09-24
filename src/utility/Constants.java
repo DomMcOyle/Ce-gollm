@@ -46,6 +46,8 @@ public class Constants {
 	public static final String CHECK_RETURN = "Con ritorno";
 	public static final String BUTTON_UPDATE = "Aggiorna";
 	public static final String BUTTON_GENERATE_NEW_ELIM = "Prossimo Round";
+	public static final String BUTTON_GOALS = "Classifica goal";
+	public static final String BUTTON_ASSISTS = "Classifica assist";
 	
 	// Contenuti delle label
 	public static final String DAY_NAME = "Giornata ";
@@ -57,6 +59,19 @@ public class Constants {
 	public static final String RECEIVES_BYE = "(bye)";
 	public static final String GROUP_NAME = "Girone ";
 	public static final String GROUP_SELEC_LABEL = "Gironi:";
+	public static final String TEAM_NAME_LABEL = "Squadra";
+	public static final String PLAYED_MATCHES_LABEL = "PG";
+	public static final String WINS_LABEL = "V";
+	public static final String LOSSES_LABEL = "S";
+	public static final String DRAWS_LABEL = "P";
+	public static final String POINTS_LABEL = "Pts";
+	public static final String SCORED_LABEL = "G+";
+	public static final String SUFFERED_LABEL = "G-";
+	public static final String DIFF_LABEL = "Diff";
+	public static final String PENALTY_LABEL = "Penalità";
+	public static final String PLAYER_NAME_LABEL = "Giocatore";
+	public static final String GOALS_LABEL = "Goal segnati";
+	public static final String ASSISTS_LABEL = "Assist effettuati";
 
 	// Contenuti delle finestre di alert
 	public static final String CONFIRM_DELETION = "Sicuro di voler cancellare il torneo ";
@@ -86,16 +101,13 @@ public class Constants {
 	// dummy team to indicate byes.
 	public static final String DUMMY_TEAM_NAME = " ";
 	public static final String PATH_SERIAL_TOUR = "./saved_tournaments.sticki";
-	public static final String TEAM_NAME_LABEL = "Squadra";
-	public static final String PLAYED_MATCHES_LABEL = "PG";
-	public static final String WINS_LABEL = "V";
-	public static final String LOSSES_LABEL = "S";
-	public static final String DRAWS_LABEL = "P";
-	public static final String POINTS_LABEL = "Pts";
-	public static final String SCORED_LABEL = "G+";
-	public static final String SUFFERED_LABEL = "G-";
-	public static final String DIFF_LABEL = "Diff";
-	public static final String PENALTY_LABEL = "Penalità";
+	public static final String GENERATE_GOALS = "goals";
+	public static final String GENERATE_ASSISTS = "assists";
+
+	
+
+
+	
 	
 	
 	

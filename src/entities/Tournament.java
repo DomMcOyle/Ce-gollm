@@ -45,6 +45,7 @@ public abstract class Tournament implements Serializable{
 		return this.kind;
 	}
 	
+	
 	public abstract LinkedList<Match[]> getDays(char group);
 	
 	public abstract LinkedList<Match[]> getDaysR(char group);

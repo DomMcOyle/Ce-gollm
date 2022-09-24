@@ -171,6 +171,6 @@ public class Team implements Serializable, Comparable<Team>{
 	public boolean equals(Team o) {
 		return this.getName().equals(o.getName());
 	}
-	
+
 
 }

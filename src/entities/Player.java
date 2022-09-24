@@ -2,6 +2,8 @@ package entities;
 
 import java.io.Serializable;
 
+import utility.Constants;
+
 public class Player implements Serializable {
 	private static final long serialVersionUID = -5304209767238879447L;
 	private String name;
@@ -61,5 +63,27 @@ public class Player implements Serializable {
 		return teamname;
 	}
 	
+	// auxiliary comparison function
+	public int topCompare(Player p, String kind) {
+		if(kind.equals(Constants.GENERATE_GOALS)) {
+			if(this.getGoals()>p.getGoals()) {
+				return -1;
+			} else if (this.getGoals()<p.getGoals()) {
+				return 1;
+			} else {
+				return 0;
+			}
+			
+		} else if (kind.equals(Constants.GENERATE_ASSISTS)) {
+			if(this.getAssists()>p.getAssists()) {
+				return -1;
+			} else if (this.getAssists()<p.getAssists()) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+		return 0;
+	}
 	
 }
