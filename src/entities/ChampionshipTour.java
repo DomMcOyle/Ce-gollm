@@ -1,5 +1,6 @@
 package entities;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
@@ -166,6 +167,27 @@ public class ChampionshipTour extends Tournament {
 	
 	public Set<Character> getGroups() {
 		return first_round.keySet();
+	}
+
+	public LinkedList<Team> getTop(char group) {
+		// extract all the teams:
+		Match[] firstPairings = first_round.get(group).getFirst();
+		Team homeTeam;
+		Team outTeam;
+		LinkedList<Team> tempList = new LinkedList<Team>();
+		for(int i=0; i<firstPairings.length; i++) {
+			homeTeam = firstPairings[i].getHometeam();
+			outTeam = firstPairings[i].getOutteam();
+			if(!homeTeam.isDummy()) {
+				tempList.add(homeTeam);
+			}
+			if(!outTeam.isDummy()) {
+				tempList.add(outTeam);
+			}
+		}
+		
+		Collections.sort(tempList);
+		return tempList;
 	}
 
 }

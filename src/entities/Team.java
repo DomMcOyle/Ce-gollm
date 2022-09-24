@@ -111,7 +111,7 @@ public class Team implements Serializable, Comparable<Team>{
 				return 0;
 			} else {
 				return -1;
-				}
+			}
 		} else if(t.wins.contains(this)) {
 			return 1;
 		} else {
@@ -168,6 +168,9 @@ public class Team implements Serializable, Comparable<Team>{
 		}
 	}
 	
+	public boolean equals(Team o) {
+		return this.getName().equals(o.getName());
+	}
 	
 
 }

@@ -4,6 +4,9 @@
 
 }
 
+.grid{
+    -fx-background-color: black;
+}
 
 /*Istruzioni per lo styling delle label*/
 .label {

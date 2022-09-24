@@ -67,6 +67,7 @@ public class Constants {
 	public static final String ERROR_SAVING_TOUR = "Errore durante la memorizzazione dei Tornei";
 	public static final String CONTENT_TEXT_NO_TOUR_INFO = "Non e' stato trovato il file \"saved_tournaments\" con i tornei salvati.\n";
 	public static final String ERROR_CANNOT_GENERATE_NEXT_ROUND = "Non è possibile generare il prossimo round: ";
+	public static final String WARN_NO_TOP = "Classifica non generata per torneo ad eliminazione.";
 
 
 	// CSS IDs
@@ -85,6 +86,16 @@ public class Constants {
 	// dummy team to indicate byes.
 	public static final String DUMMY_TEAM_NAME = " ";
 	public static final String PATH_SERIAL_TOUR = "./saved_tournaments.sticki";
+	public static final String TEAM_NAME_LABEL = "Squadra";
+	public static final String PLAYED_MATCHES_LABEL = "PG";
+	public static final String WINS_LABEL = "V";
+	public static final String LOSSES_LABEL = "S";
+	public static final String DRAWS_LABEL = "P";
+	public static final String POINTS_LABEL = "Pts";
+	public static final String SCORED_LABEL = "G+";
+	public static final String SUFFERED_LABEL = "G-";
+	public static final String DIFF_LABEL = "Diff";
+	public static final String PENALTY_LABEL = "Penalità";
 	
 	
 	

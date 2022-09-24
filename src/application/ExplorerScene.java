@@ -54,7 +54,13 @@ public class ExplorerScene extends Scene {
 			showMatches();
 		});
 		showTopTeamsButton = new Button(Constants.BUTTON_TOP);
+		showTopTeamsButton.setOnAction(e-> {
+			showTopTeams();
+		});
 		showTopPlayersButton = new Button(Constants.BUTTON_PLAYERS);
+		showTopPlayersButton.setOnAction(e->{
+			showTopPlayers();
+		});
 		
 		topRow.getChildren().addAll(showTeamButton,
 				showMatchesButton, showTopTeamsButton, showTopPlayersButton);
@@ -406,19 +412,135 @@ public class ExplorerScene extends Scene {
 			
 		});
 		
-		
-		
-		
-		/*
-		for(Team t: toShow.getTeams()) {
-			daySelector.getItems().add(t.getName());
-		}
-		TODO: se il torneo è a eliminazione/campionato non servono i gironi
-			altrimenti va aggiunto il coso a gironi
-		
-		*/
 	}
 	
+	private void showTopTeams() {
+		// update buttons
+		updateButtons(Constants.BUTTON_TOP);
+		
+		// dont'show top if the tournament is an elimination one
+		if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
+			Label noTop = new Label(Constants.WARN_NO_TOP);
+			framePane.setCenter(noTop);
+			return;
+		}
+		BorderPane centralPane = new BorderPane();
+		framePane.setCenter(centralPane);
+		
+		if(toShow.getKind().equals(Constants.CREATION_CHAMP)) {
+			showGroupTop(Constants.DEFAULT_GROUP, centralPane);
+			
+		} else {
+			// create new lateral box
+			VBox leftPane = new VBox();
+			leftPane.setAlignment(Pos.TOP_LEFT);
+			leftPane.setPadding(new Insets(25, 25, 25, 25));
+			leftPane.setSpacing(5d);
+			leftPane.setId(Constants.ID_LESS_DARKER_BOX);
+			ChoiceBox<String> groupSelector = new ChoiceBox<>();
+			Label groupLabel = new Label(Constants.GROUP_SELEC_LABEL);
+			Set<Character> groups = ((ChampionshipTour)toShow).getGroups();
+			for(Character g: groups) {
+				groupSelector.getItems().add(Constants.GROUP_NAME + g);
+			}
+			leftPane.getChildren().addAll(groupLabel, groupSelector);
+			centralPane.setLeft(leftPane);
+			groupSelector.setOnAction(e->{
+				showGroupTop(groupSelector.getValue().charAt(groupSelector.getValue().length()-1), centralPane);
+			});
+		}
+		
+	}
+	
+	private void showGroupTop(char group, BorderPane centralPane) {
+		GridPane topPane = new GridPane();
+		topPane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
+		topPane.setAlignment(Pos.CENTER_LEFT);
+		topPane.setHgap(20);
+		topPane.setVgap(10);
+		topPane.setPadding(new Insets(30,30,30,30));
+		ScrollPane topScroll = new ScrollPane(topPane);
+	
+		
+		Label teamLabel = new Label(Constants.TEAM_NAME_LABEL);
+		Label playedMatches = new Label(Constants.PLAYED_MATCHES_LABEL);
+		Label wins = new Label(Constants.WINS_LABEL);
+		Label losses = new Label(Constants.LOSSES_LABEL);
+		Label draws = new Label(Constants.DRAWS_LABEL);
+		Label points = new Label(Constants.POINTS_LABEL);
+		points.setId(Constants.ID_SERVER_LABEL);
+		Label scoredGoals = new Label(Constants.SCORED_LABEL);
+		Label sufferedGoals = new Label(Constants.SUFFERED_LABEL);
+		Label diffGoals = new Label(Constants.DIFF_LABEL);
+		Label penaltyPoints = new Label(Constants.PENALTY_LABEL);
+		
+		topPane.add(teamLabel,1 ,0);
+		topPane.add(playedMatches, 2, 0);
+		topPane.add(wins, 3, 0);
+		topPane.add(losses, 4, 0);
+		topPane.add(draws, 5, 0);
+		topPane.add(points, 6, 0);
+		topPane.add(scoredGoals, 7, 0);
+		topPane.add(sufferedGoals, 8, 0);
+		topPane.add(diffGoals, 9, 0);
+		topPane.add(penaltyPoints, 10, 0);
+		
+		LinkedList<Team> sorted = ((ChampionshipTour)toShow).getTop(group);
+		Button updateButton = new Button(Constants.BUTTON_UPDATE);
+		updateButton.setDisable(true);
+		topPane.add(updateButton,0 , sorted.size()+1 , 2, 1);
+		updateButton.setId(Constants.ID_SMALL_BUTTON);
+		updateButton.setOnAction(e->{
+			showGroupTop(group, centralPane);
+		});
+		for(int i = 0; i<sorted.size(); i++) {
+			Team currentTeam = sorted.get(i);
+			topPane.add(new Label(String.valueOf(i+1) + "."), 0, i+1);
+			topPane.add(new Label(currentTeam.getName()),1 ,i+1);
+			topPane.add(new Label(String.valueOf(currentTeam.getNumMatches())),2, i+1);
+			topPane.add(new Label(String.valueOf(currentTeam.getWins())), 3, i+1);
+			topPane.add(new Label(String.valueOf(currentTeam.getLosses())), 4, i+1);
+			topPane.add(new Label(String.valueOf(currentTeam.getDraws())), 5, i+1);
+			Label pts = new Label(String.valueOf(currentTeam.getPoints()));
+			pts.setId(Constants.ID_SERVER_LABEL);
+			topPane.add(pts, 6, i+1);
+			topPane.add(new Label(String.valueOf(currentTeam.getScoredGoals())), 7, i+1);
+			topPane.add(new Label(String.valueOf(currentTeam.getSufferedGoals())), 8, i+1);
+			topPane.add(new Label(String.valueOf(currentTeam.getDiffGoals())), 9, i+1);
+			Label penaltyPts = new Label(String.valueOf(currentTeam.getPenaltyPts()));
+			topPane.add(penaltyPts, 10, i+1);
+			
+			Button incPen = new Button(Constants.BUTTON_PLUS);
+			Button decPen = new Button(Constants.BUTTON_MINUS);
+			incPen.setId(Constants.ID_SMALL_BUTTON);
+			decPen.setId(Constants.ID_SMALL_BUTTON);
+			
+			topPane.add(incPen, 11, i+1);
+			topPane.add(decPen, 12, i+1);
+			
+			incPen.setOnAction(e->{
+				currentTeam.setPenaltyPts(currentTeam.getPenaltyPts()+1);
+				penaltyPts.setText(String.valueOf(currentTeam.getPenaltyPts()));
+				updateButton.setDisable(false);
+			});
+			
+			decPen.setOnAction(e->{
+				if(currentTeam.getPenaltyPts()>0) {
+					currentTeam.setPenaltyPts(currentTeam.getPenaltyPts()-1);
+					penaltyPts.setText(String.valueOf(currentTeam.getPenaltyPts()));
+					updateButton.setDisable(false);
+				}
+			});
+			
+		}
+		centralPane.setCenter(topScroll);
+
+	}
+	
+	private void showTopPlayers() {
+		updateButtons(Constants.BUTTON_PLAYERS);
+		
+	}
 	
 	private void updateButtons(String pressedButton) {
 		switch(pressedButton) {

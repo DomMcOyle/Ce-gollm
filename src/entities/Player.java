@@ -2,7 +2,7 @@ package entities;
 
 import java.io.Serializable;
 
-public class Player implements Serializable{
+public class Player implements Serializable {
 	private static final long serialVersionUID = -5304209767238879447L;
 	private String name;
 	private String teamname;
@@ -55,7 +55,7 @@ public class Player implements Serializable{
 	public void setYellows(int yellows) {
 		this.yellows = yellows;
 	}
-
+	
 
 	public String getTeamname() {
 		return teamname;
