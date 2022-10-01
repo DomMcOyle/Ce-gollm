@@ -550,12 +550,7 @@ public class ExplorerScene extends Scene {
 	
 	private void showTopPlayers() {
 		updateButtons(Constants.BUTTON_PLAYERS);
-		// dont'show top if the tournament is an elimination one
-		if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
-			Label noTop = new Label(Constants.WARN_NO_TOP);
-			framePane.setCenter(noTop);
-			return;
-		}
+
 		BorderPane centralPane = new BorderPane();
 		framePane.setCenter(centralPane);
 		VBox leftPane = new VBox();
@@ -592,8 +587,8 @@ public class ExplorerScene extends Scene {
 		Player top;
 		int compResult;
 		
-		if(toShow.getKind().equals(Constants.CREATION_CHAMP)) {
-			teamList.addAll(((ChampionshipTour)toShow).getTop(Constants.DEFAULT_GROUP));
+		if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
+			teamList.addAll(toShow.getTeams());
 		} else {
 			Set<Character> groups = ((ChampionshipTour)toShow).getGroups();
 			for(Character g: groups)
@@ -614,10 +609,18 @@ public class ExplorerScene extends Scene {
 					top = playerList.get(i);
 				} else if(compResult==0) {
 					// smaller index = team with an higher position
-					if(teamList.indexOf(toShow.getTeam(top.getTeamname())) > 
-					teamList.indexOf(toShow.getTeam(playerList.get(i).getTeamname()))){
-						top = playerList.get(i);
+					if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
+						// TODO: TieBreaking needed for elimination torunament
+						if(((EliminationTour)toShow).upperThan(toShow.getTeam(top.getTeamname()), toShow.getTeam(playerList.get(i).getTeamname()))<0) {
+							top = playerList.get(i);
+						}
+					} else {
+						if(teamList.indexOf(toShow.getTeam(top.getTeamname())) > 
+						teamList.indexOf(toShow.getTeam(playerList.get(i).getTeamname()))){
+							top = playerList.get(i);
+						}
 					}
+					
 				}
 			}
 			

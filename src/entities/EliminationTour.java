@@ -46,7 +46,6 @@ public class EliminationTour extends Tournament {
 			for(int i =0; i<last_day.length; i++) {
 
 				if(!last_day_r[i].hasBeenPlayed()) {
-					System.out.println("ao");
 					throw new TournamentException("Match " + last_day[i].toString() + "(ritorno) non disputato." );
 				}
 
@@ -100,8 +99,80 @@ public class EliminationTour extends Tournament {
 
 	@Override
 	public LinkedList<Match[]> getDaysR(char group) {
-		// TODO Auto-generated method stub
+		
 		return second_round;
+	}
+
+	public int upperThan(Team team1, Team team2) {
+		// Comparison method to see if team1 has a better position wrt team2, i.e. team1 has access to a 
+		// further round or if they have battled and one of the two has won
+		int team1MaxRound = -1;
+		int team2MaxRound = -1;
+		Match[] round;
+		for(int i=this.first_round.size()-1; i>=0 ; i--) {
+			round = first_round.get(i);
+			
+			for(Match m: round) {
+				
+				if((m.getOutteam().equals(team1) || m.getHometeam().equals(team1)) && team1MaxRound == -1) {
+					team1MaxRound = i;
+				}
+				if((m.getOutteam().equals(team2) || m.getHometeam().equals(team2)) && team2MaxRound == -1) {
+					team2MaxRound = i;
+				}
+			}
+			if(team1MaxRound != -1 && team2MaxRound != -1) {
+				break;
+			}
+		}
+		
+		if(team1MaxRound > team2MaxRound) {
+			return 1;
+		}
+		if(team1MaxRound < team2MaxRound) {
+			return -1;
+		}
+		
+
+		round = first_round.get(team1MaxRound);
+		Match m = null;
+		int team1Goals = 0;
+		int team2Goals = 0;
+		boolean foundFlag = false;
+		
+		for(int j=0; j<round.length; j++) {
+			m = round[j];
+			
+			if(m.getHometeam().equals(team1) && m.getOutteam().equals(team2)){
+				team1Goals = m.getHomegoals();
+				team2Goals = m.getOutgoals();
+				if(this.withReturn() && second_round.get(team1MaxRound)[j].hasBeenPlayed()) {
+					team1Goals = team1Goals + second_round.get(team1MaxRound)[j].getOutgoals();
+					team2Goals = team2Goals + second_round.get(team1MaxRound)[j].getHomegoals();
+				}
+				foundFlag = true;
+			} else if (m.getOutteam().equals(team1) && m.getHometeam().equals(team2)) {
+				team1Goals = m.getOutgoals();
+				team2Goals = m.getHomegoals();
+				if(this.withReturn() && second_round.get(team1MaxRound)[j].hasBeenPlayed()) {
+					team1Goals = team1Goals + second_round.get(team1MaxRound)[j].getHomegoals();
+					team2Goals = team2Goals + second_round.get(team1MaxRound)[j].getOutgoals();
+				}
+				foundFlag = true;
+			}
+			
+			if(foundFlag) {
+				if(team1Goals>team2Goals) {
+					return 1;
+				} else if(team1Goals < team2Goals) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		}
+		
+		return 0;
 	}
 	
 
