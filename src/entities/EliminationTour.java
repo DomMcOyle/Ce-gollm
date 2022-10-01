@@ -175,5 +175,24 @@ public class EliminationTour extends Tournament {
 		return 0;
 	}
 	
-
+	public boolean hasEnded() {
+		if(!this.withReturn()) {
+			Match[] lastRound = first_round.getLast();
+			if(lastRound.length == 1) {
+				if(lastRound[0].hasBeenPlayed()) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			Match[] lastRound = first_round.getLast();
+			Match[] lastRoundR = second_round.getLast();
+			if(lastRound.length == 1) {
+				if(lastRound[0].hasBeenPlayed() && lastRoundR[0].hasBeenPlayed()) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 }

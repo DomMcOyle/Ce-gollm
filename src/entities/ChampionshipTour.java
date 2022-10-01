@@ -18,12 +18,13 @@ public class ChampionshipTour extends Tournament {
 	HashMap<Character, LinkedList<Match[]>> first_round;
 	HashMap<Character, LinkedList<Match[]>> second_round;
 	boolean with_groups;
+	EliminationTour showdown;
 	
 	
 	public ChampionshipTour(String name, LinkedList<Team> teams, boolean with_return, HashMap<Character, LinkedList<Team>> groups) {
 		
 		super(name, teams, with_return, (groups==null?Constants.CREATION_CHAMP:Constants.CREATION_GROUP));
-
+		this.showdown = null;
 		first_round = new HashMap<>();
 		if(with_return) {
 			second_round = new HashMap<>();
@@ -189,5 +190,41 @@ public class ChampionshipTour extends Tournament {
 		Collections.sort(tempList);
 		return tempList;
 	}
+	
+	public EliminationTour getShowdown() {
+		return this.showdown;
+	}
+	
+	public void setShowdown(EliminationTour showdown) {
+		this.showdown = showdown;
+	}
 
+	public boolean hasShowdown() {
+		return this.showdown != null;
+	}
+	
+	public boolean hasEnded() {
+		Match current;
+		Match currentR;
+		for(Character g: this.getGroups()) {
+			// for each group
+			for(int i=0; i<first_round.get(g).size(); i++) {
+				// for each day
+				for(int j=0; j<first_round.get(g).get(i).length; j++) {
+					// for each match
+					current = first_round.get(g).get(i)[j];
+					if(!current.hasBeenPlayed() && !current.isBye()) {
+						return false;
+					}
+					if (this.withReturn()) {
+						currentR = second_round.get(g).get(i)[j];
+						if(!currentR.hasBeenPlayed() && !currentR.isBye()) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
 }

@@ -182,4 +182,9 @@
 	-fx-text-alignment : left;
 }
 
+#checkLabel {
+	-fx-font-size: 14px;
+	-fx-text-fill : #373D37;
+	-fx-text-alignment : left;
+}
 

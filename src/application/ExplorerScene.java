@@ -1,5 +1,7 @@
 package application;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -10,12 +12,14 @@ import entities.Player;
 import entities.Team;
 import entities.Tournament;
 import entities.TournamentException;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -32,8 +36,10 @@ public class ExplorerScene extends Scene {
 	Button showMatchesButton;
 	Button showTopTeamsButton;
 	Button showTopPlayersButton;
+	Button showEliminationButton;
 	BorderPane framePane;
 	Tournament toShow;
+	Tournament switcheroo;
 	
 	public ExplorerScene(BorderPane mainPane, double dim, double dim2, Tournament toShow) {
 		super(mainPane, dim, dim2);
@@ -65,6 +71,18 @@ public class ExplorerScene extends Scene {
 		
 		topRow.getChildren().addAll(showTeamButton,
 				showMatchesButton, showTopTeamsButton, showTopPlayersButton);
+		if(!toShow.getKind().equals(Constants.CREATION_ELIM)) {
+			showEliminationButton = new Button(Constants.BUTTON_SHOW_ELIM);
+			if(!((ChampionshipTour)toShow).hasShowdown()) {
+				showEliminationButton.setDisable(true);
+			} else {
+				this.switcheroo = ((ChampionshipTour)toShow).getShowdown();
+			}
+			topRow.getChildren().add(showEliminationButton);
+			showEliminationButton.setOnAction(e->{
+				switchTournament();
+			});
+		}
 		
 		mainPane.setTop(topRow);
 		
@@ -84,6 +102,8 @@ public class ExplorerScene extends Scene {
 		
 	}
 	
+
+
 	private void showTeams() {
 		// at the beginning update the buttons
 		updateButtons(Constants.BUTTON_TEAMS);
@@ -258,7 +278,7 @@ public class ExplorerScene extends Scene {
 	
 		Label dayLabel = new Label(Constants.DAY_SELEC_LABEL);
 		Label groupLabel = new Label(Constants.GROUP_SELEC_LABEL);
-		daySelector.setPrefWidth(200);
+		daySelector.setPrefWidth(156);
 		if(toShow.getKind().equals(Constants.CREATION_GROUP)) {
 
 			Set<Character> groups = ((ChampionshipTour)toShow).getGroups();
@@ -302,11 +322,12 @@ public class ExplorerScene extends Scene {
 		}
 		leftPane.getChildren().addAll(dayLabel, daySelector);
 		
+		Button generateNext = new Button();
+		generateNext.setId(Constants.ID_SMALL_BUTTON);
+		leftPane.getChildren().add(generateNext);
+		
 		if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
-			Button generateNext = new Button(Constants.BUTTON_GENERATE_NEW_ELIM);
-			generateNext.setId(Constants.ID_SMALL_BUTTON);
-			leftPane.getChildren().add(generateNext);
-			
+			generateNext.setText(Constants.BUTTON_GENERATE_NEW_ROUND);
 			generateNext.setOnAction(e -> {
 				try {
 					((EliminationTour)toShow).generateNewRound();
@@ -323,7 +344,18 @@ public class ExplorerScene extends Scene {
 					daySelector.getItems().add(Constants.DAY_NAME + (daySelector.getItems().size() + 1));
 				}
 			});
-		}
+		} else {
+			generateNext.setText(Constants.BUTTON_GENERATE_ELIM);
+			if(!((ChampionshipTour)toShow).hasShowdown()) {
+				generateNext.setOnAction(e -> {
+					generateShowdown();
+				});
+			} else {
+				generateNext.setDisable(true);
+			}
+		} 
+		
+		
 		ScrollPane leftScroll = new ScrollPane(leftPane);
 		leftScroll.setFitToHeight(true);
 		centralPane.setLeft(leftScroll);
@@ -610,7 +642,7 @@ public class ExplorerScene extends Scene {
 				} else if(compResult==0) {
 					// smaller index = team with an higher position
 					if(toShow.getKind().equals(Constants.CREATION_ELIM)) {
-						// TODO: TieBreaking needed for elimination torunament
+
 						if(((EliminationTour)toShow).upperThan(toShow.getTeam(top.getTeamname()), toShow.getTeam(playerList.get(i).getTeamname()))<0) {
 							top = playerList.get(i);
 						}
@@ -667,7 +699,221 @@ public class ExplorerScene extends Scene {
 			
 		return topScroll;
 	}
+	
+	private void generateShowdown() {
+		if(!toShow.hasEnded()) {
+			new AlertUtil().showAlert(Constants.ERROR_CANNOT_GENERATE_NEXT_ROUND + "Il torneo non è terminato.", Alert.AlertType.ERROR);
+			return;
+		}
+		
+		LinkedList<Team> teamList = new LinkedList<>();
+		for(Character g: ((ChampionshipTour)toShow).getGroups()) {
+			teamList.addAll(((ChampionshipTour)toShow).getTop(g));
+		}
+		
+		BorderPane frame = new BorderPane();
+		frame.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
 
+		GridPane grid = new GridPane();
+		grid.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
+		grid.setAlignment(Pos.CENTER_LEFT);
+		grid.setHgap(20);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(50,50,50,50));
+		ScrollPane scrollGrid = new ScrollPane(grid);
+		
+		LinkedList<CheckBox> checkboxes = new LinkedList<>();
+		
+		Label selectTeam = new Label(Constants.SELECT_TEAM_LABEL);
+		selectTeam.setId(Constants.ID_PREDICTION_LABEL);
+		
+		Button backButton = new Button(Constants.BUTTON_BACK);
+		backButton.setOnAction(e->{
+			Main.setThisScene(this);
+		});
+		Button nextButton = new Button(Constants.BUTTON_NEXT);
+		nextButton.setDisable(true);
+		
+		HBox lowerPane = new HBox();
+		lowerPane.setAlignment(Pos.CENTER_RIGHT);
+		lowerPane.setPadding(new Insets(25, 25, 25, 25));
+		lowerPane.setSpacing(5d);
+		CheckBox returnCheck = new CheckBox(Constants.CHECK_RETURN);
+		lowerPane.getChildren().addAll(returnCheck, backButton, nextButton);
+		
+		frame.setTop(selectTeam);
+		frame.setCenter(scrollGrid);
+		frame.setBottom(lowerPane);
+		
+		for(int i=0; i<teamList.size(); i++) {
+			CheckBox teamName = new CheckBox(teamList.get(i).getName());
+			teamName.setId(Constants.ID_CHECK_LABEL);
+			teamName.setOnAction(e->{
+				int numSel = checkboxes.stream().mapToInt(c -> {
+					if(c.isSelected()) {
+						return 1;
+					} else {
+						return 0;}}).sum();
+				if(power2(numSel)) {
+					nextButton.setDisable(false);
+				} else {
+					nextButton.setDisable(true);
+				}
+			});
+			grid.add(teamName, (i%3), (i/3));
+			checkboxes.add(teamName);
+		}
+		
+		Scene selectTeams = new Scene(frame, Constants.WINDOWW, Constants.WINDOWH);
+		nextButton.setOnAction(e->{
+			LinkedList<Team> selectedTeams = new LinkedList<>();
+			for(int i=0; i<checkboxes.size(); i++) {
+				if(checkboxes.get(i).isSelected()) {
+					selectedTeams.add(teamList.get(i));
+				}
+			}
+			setEncounters(selectedTeams, selectTeams, returnCheck.isSelected());
+		});
+		Main.setThisScene(selectTeams);
+	}
+	
+	public boolean power2(int x) {
+		// returns true if x is a power of 2 and different from 1
+		return x != 0 && x!=1 && ((x & (x - 1)) == 0);
+	}
+	
+	private void setEncounters(LinkedList<Team> selectedTeams, Scene backScene, boolean withReturn) {
+		// function needed to show the group/match selection panel
+		// duplicate of the function for setting the encounters when creating a torunament
+		// quick solution to avoid to change everithing again
+		BorderPane pane = new BorderPane();
+		pane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
+		
+		GridPane internalPane = new GridPane();
+		internalPane.setAlignment(Pos.CENTER);
+		internalPane.setHgap(40);
+		internalPane.setVgap(30);
+		internalPane.setPadding(new Insets(30,30,30,30));
+		
+		Label topTeam = new Label(Constants.CREATION_TEAM_PROMPT);
+		Label topKind = new Label("Match");
+		topTeam.setId(Constants.ID_PREDICTION_LABEL);
+		topKind.setId(Constants.ID_PREDICTION_LABEL);
+		internalPane.add(topTeam, 0, 0);
+		internalPane.add(topKind, 1, 0);
+		
+		int i = 1;
+		LinkedList<TextField> textFieldList = new LinkedList<>();
+		for(Team t: selectedTeams) {
+			internalPane.add(new Label(t.getName()), 0,i);
+			TextField tf = new TextField();
+			tf.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
+			internalPane.add(tf,1, i);
+			textFieldList.add(tf);
+			i = i + 1;
+		}
+		
+		ScrollPane scroll = new ScrollPane(internalPane);
+		pane.setCenter(scroll);
+		
+		HBox buttonsSpace = new HBox();
+		buttonsSpace.setAlignment(Pos.CENTER);
+		buttonsSpace.setPadding(new Insets(25, 25, 25, 25));
+		buttonsSpace.setSpacing(5d);
+		
+		Button next = new Button(Constants.BUTTON_NEXT);
+		Button back = new Button(Constants.BUTTON_BACK);
+		back.setOnAction(e -> {
+			Main.setThisScene(backScene);
+		});
+		
+		next.setOnAction(e -> {
+			// checkCorrectness is used to check whether the id of the match is correct or if there are more or less than 2
+			// teams involved in the same match (in elim) or whether there are groups with a single team (in groups)
+			HashMap<String, Integer> checkCorrectness = new HashMap<>();
+			HashMap <String, String>tmpPairings = new HashMap<>();
+			String discriminant;
+			
+			for(int j=0; j<textFieldList.size(); j++) {
+				discriminant = textFieldList.get(j).getText().trim();
+				if(discriminant.equals("") || discriminant == null) {
+					new AlertUtil().showAlert("Match non assegnato alla squadra " + selectedTeams.get(j).getName(), Alert.AlertType.ERROR);
+				}
+				
+				if(!checkCorrectness.containsKey(discriminant)) {
+						if(Integer.parseInt(discriminant)<1 || Integer.parseInt(discriminant)> selectedTeams.size()/2) {
+							new AlertUtil().showAlert("Identificativo del match inserito non valido, riprova. (Inserito: " +
+									discriminant + ", permessi tra 1 e " + selectedTeams.size()/2
+									, Alert.AlertType.ERROR);
+							return;
+						}
+					//update check correctness
+					checkCorrectness.put(discriminant, 1);
+					tmpPairings.put(selectedTeams.get(j).getName(), discriminant);
+							
+				} else {
+						checkCorrectness.put(discriminant, checkCorrectness.get(discriminant)+1);
+						// check in case of elimination tournament whether there are two or more teams associated with a specific match
+						if(checkCorrectness.get(discriminant)>2) {
+			
+							new AlertUtil().showAlert(Constants.ERROR_MIS_MATCH + discriminant, Alert.AlertType.ERROR);
+							return;
+						}
+							
+						tmpPairings.put(selectedTeams.get(j).getName(), discriminant);
+				}
+				
+			}
+			
+			
+			if(checkCorrectness.values().contains(1)) {
+				// check if there is a match/group with a single team
+				new AlertUtil().showAlert(Constants.ERROR_LESS_MATCH, Alert.AlertType.ERROR);
+				return;
+			}
+			
+			HashSet<String> placed = new HashSet<>();
+			Match[] arrPairings = new Match[selectedTeams.size()/2];
+			for(Team t: selectedTeams) {
+				
+				if (!placed.contains(t.getName())) {
+					for(Team t2: selectedTeams) {					
+						if(tmpPairings.get(t.getName()).equals(tmpPairings.get(t2.getName())) && t!=t2) {
+							placed.add(t.getName());
+							placed.add(t2.getName());
+							arrPairings[Integer.parseInt(tmpPairings.get(t.getName()))-1] = new Match(t,t2);
+							break;
+						}
+					}
+				}
+			}
+			((ChampionshipTour)this.toShow).setShowdown(new EliminationTour(toShow.getName()+"(E)", 
+					selectedTeams,withReturn ,arrPairings));
+			showEliminationButton.setDisable(false);
+			this.switcheroo = ((ChampionshipTour)this.toShow).getShowdown();
+			Main.setThisScene(this);
+		});
+		
+		buttonsSpace.getChildren().addAll(back,next);
+		pane.setBottom(buttonsSpace);
+		
+		Scene encounter = new Scene(pane, Constants.WINDOWW, Constants.WINDOWH);		
+		Main.setThisScene(encounter);
+	}
+	
+	private void switchTournament() {
+		Tournament temp = this.toShow;
+		this.toShow = switcheroo;
+		switcheroo = temp;
+		if(this.showEliminationButton.getText().equals(Constants.BUTTON_SHOW_ELIM)) {
+			this.showEliminationButton.setText(Constants.BUTTON_SHOW_CHAMP);
+		} else {
+			this.showEliminationButton.setText(Constants.BUTTON_SHOW_ELIM);
+		}
+		this.framePane.setCenter(null);
+		updateButtons(Constants.RESET_BUTTONS);
+		
+	}
 	private void updateButtons(String pressedButton) {
 		switch(pressedButton) {
 		case Constants.BUTTON_TEAMS:
@@ -692,6 +938,12 @@ public class ExplorerScene extends Scene {
 			showTeamButton.setDisable(false);
 			showMatchesButton.setDisable(false);
 			showTopPlayersButton.setDisable(true);
+			showTopTeamsButton.setDisable(false);
+			break;
+		case Constants.RESET_BUTTONS:
+			showTeamButton.setDisable(false);
+			showMatchesButton.setDisable(false);
+			showTopPlayersButton.setDisable(false);
 			showTopTeamsButton.setDisable(false);
 			break;
 		}

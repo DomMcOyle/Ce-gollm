@@ -180,7 +180,7 @@ public class CreateScene extends Scene {
 		});
 	}
 	
-	private boolean power2(int x) {
+	public boolean power2(int x) {
 		// returns true if x is a power of 2 and different from 1
 		return x != 0 && x!=1 && ((x & (x - 1)) == 0);
 	}

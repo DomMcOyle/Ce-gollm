@@ -13,7 +13,7 @@ public class Constants {
 	public static final String CREATION_GROUP = "Gironi";
 	
 	// Limiti numerici
-	public static final int WINDOWW = 800;
+	public static final int WINDOWW = 900;
 	public static final int WINDOWH = 500;
 
 	
@@ -45,9 +45,13 @@ public class Constants {
 	public static final String BUTTON_MINUS = "-";
 	public static final String CHECK_RETURN = "Con ritorno";
 	public static final String BUTTON_UPDATE = "Aggiorna";
-	public static final String BUTTON_GENERATE_NEW_ELIM = "Prossimo Round";
+	public static final String BUTTON_GENERATE_NEW_ROUND = "Prossimo Round";
 	public static final String BUTTON_GOALS = "Classifica goal";
 	public static final String BUTTON_ASSISTS = "Classifica assist";
+	public static final String BUTTON_GENERATE_ELIM = "Genera eliminatoria";
+	public static final String BUTTON_SHOW_ELIM = "Eliminatoria";
+	public static final String BUTTON_SHOW_CHAMP = "Campionato";
+
 	
 	// Contenuti delle label
 	public static final String DAY_NAME = "Giornata ";
@@ -72,6 +76,7 @@ public class Constants {
 	public static final String PLAYER_NAME_LABEL = "Giocatore";
 	public static final String GOALS_LABEL = "Goal segnati";
 	public static final String ASSISTS_LABEL = "Assist effettuati";
+	public static final String SELECT_TEAM_LABEL = "Seleziona le squadre:";
 
 	// Contenuti delle finestre di alert
 	public static final String CONFIRM_DELETION = "Sicuro di voler cancellare il torneo ";
@@ -94,6 +99,7 @@ public class Constants {
 	public static final String ID_SERVER_LABEL = "serverLabel";
 	public static final String ID_DARKER_BOX = "darkerBox";
 	public static final String ID_LESS_DARKER_BOX = "lessDarkerBox";
+	public static final String ID_CHECK_LABEL = "checkLabel";
 
 	// Internal constants
 	public static final char DEFAULT_GROUP = '*';
@@ -103,6 +109,9 @@ public class Constants {
 	public static final String PATH_SERIAL_TOUR = "./saved_tournaments.sticki";
 	public static final String GENERATE_GOALS = "goals";
 	public static final String GENERATE_ASSISTS = "assists";
+	public static final String RESET_BUTTONS = "reset";
+
+	
 
 	
 

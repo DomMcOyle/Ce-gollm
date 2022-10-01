@@ -50,4 +50,6 @@ public abstract class Tournament implements Serializable{
 	
 	public abstract LinkedList<Match[]> getDaysR(char group);
 	
+	public abstract boolean hasEnded();
+	
 }
