@@ -43,6 +43,7 @@ public class ExplorerScene extends Scene {
 	
 	public ExplorerScene(BorderPane mainPane, double dim, double dim2, Tournament toShow) {
 		super(mainPane, dim, dim2);
+		
 		mainPane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
 		this.framePane = mainPane;
 		this.toShow = toShow;
@@ -707,8 +708,12 @@ public class ExplorerScene extends Scene {
 		}
 		
 		LinkedList<Team> teamList = new LinkedList<>();
+		int[] groupArr = new int[((ChampionshipTour)toShow).getGroups().size()];
+		int k = 0;
 		for(Character g: ((ChampionshipTour)toShow).getGroups()) {
 			teamList.addAll(((ChampionshipTour)toShow).getTop(g));
+			groupArr[k] = ((ChampionshipTour)toShow).getTop(g).size();
+			k++;
 		}
 		
 		BorderPane frame = new BorderPane();
@@ -745,10 +750,28 @@ public class ExplorerScene extends Scene {
 		frame.setCenter(scrollGrid);
 		frame.setBottom(lowerPane);
 		
+		int begin = 0; // row where to start to put checkbozes
+		if(groupArr.length!=1) {
+			// block needed to deal with arrangements of teams in different groups + to print group labels
+			begin = 1;
+			Object[] groupNames = ((ChampionshipTour)toShow).getGroups().toArray();
+			for(int j=0; j<groupNames.length; j++) {
+				Label lab = new Label(Constants.GROUP_NAME + (Character)groupNames[j]);
+				lab.setId(Constants.ID_SERVER_LABEL);
+				grid.add(lab, j, 0);
+			}
+		}
+
+		int row = begin; // row counter
+		int col = 0; // column counter
+		k = 0; // group counter
+		
 		for(int i=0; i<teamList.size(); i++) {
-			CheckBox teamName = new CheckBox(teamList.get(i).getName());
+			// prints the checkbox with the squad name and its position in the respective group
+			CheckBox teamName = new CheckBox("" + String.valueOf(row-(begin-1)) + "° " + teamList.get(i).getName() );
 			teamName.setId(Constants.ID_CHECK_LABEL);
 			teamName.setOnAction(e->{
+				// function enabling the "next" button only when an appropriate number of teams are chosen
 				int numSel = checkboxes.stream().mapToInt(c -> {
 					if(c.isSelected()) {
 						return 1;
@@ -760,8 +783,18 @@ public class ExplorerScene extends Scene {
 					nextButton.setDisable(true);
 				}
 			});
-			grid.add(teamName, (i%3), (i/3));
+			grid.add(teamName, col, row);
 			checkboxes.add(teamName);
+			
+			if(groupArr.length!=1) {
+				// dealing with group wraparound
+				if(row==groupArr[k]) {
+					col++;
+					k++;
+					row = 0;
+				}
+			}
+			row++;
 		}
 		
 		Scene selectTeams = new Scene(frame, Constants.WINDOWW, Constants.WINDOWH);
@@ -769,7 +802,8 @@ public class ExplorerScene extends Scene {
 			LinkedList<Team> selectedTeams = new LinkedList<>();
 			for(int i=0; i<checkboxes.size(); i++) {
 				if(checkboxes.get(i).isSelected()) {
-					selectedTeams.add(teamList.get(i));
+					// here we create copies of teams, in order to keep them non interacting
+					selectedTeams.add(new Team(teamList.get(i)));
 				}
 			}
 			setEncounters(selectedTeams, selectTeams, returnCheck.isSelected());
@@ -805,6 +839,7 @@ public class ExplorerScene extends Scene {
 		int i = 1;
 		LinkedList<TextField> textFieldList = new LinkedList<>();
 		for(Team t: selectedTeams) {
+			// setting match selection screen
 			internalPane.add(new Label(t.getName()), 0,i);
 			TextField tf = new TextField();
 			tf.setTextFormatter(new TextFormatter <> (change -> change.getControlNewText().matches("[0-9]*") ? change : null));
@@ -887,10 +922,18 @@ public class ExplorerScene extends Scene {
 					}
 				}
 			}
-			((ChampionshipTour)this.toShow).setShowdown(new EliminationTour(toShow.getName()+"(E)", 
+			// championship parsing
+			((ChampionshipTour)this.toShow).setShowdown(new EliminationTour(toShow.getName()+" (E)", 
 					selectedTeams,withReturn ,arrPairings));
+			// here we enable the elimination phase button
 			showEliminationButton.setDisable(false);
+			// set the "switcheroo" value
 			this.switcheroo = ((ChampionshipTour)this.toShow).getShowdown();
+			// empty the center pane
+			this.framePane.setCenter(null);
+			// reset buttons
+			this.updateButtons(Constants.RESET_BUTTONS);
+			// go back to the previous scene
 			Main.setThisScene(this);
 		});
 		
@@ -907,8 +950,10 @@ public class ExplorerScene extends Scene {
 		switcheroo = temp;
 		if(this.showEliminationButton.getText().equals(Constants.BUTTON_SHOW_ELIM)) {
 			this.showEliminationButton.setText(Constants.BUTTON_SHOW_CHAMP);
+			Main.setTitle(Constants.WINDOW_NAME + " - " + toShow.getName());
 		} else {
 			this.showEliminationButton.setText(Constants.BUTTON_SHOW_ELIM);
+			Main.setTitle(Constants.WINDOW_NAME + " - " + toShow.getName() + " (" + toShow.getKind() + ")");
 		}
 		this.framePane.setCenter(null);
 		updateButtons(Constants.RESET_BUTTONS);

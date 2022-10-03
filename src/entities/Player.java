@@ -12,7 +12,6 @@ public class Player implements Serializable {
 	private int assists;
 	private int reds;
 	private int yellows;
-	private int id;
 	
 	
 	public Player(String name, String teamname, int id) {
@@ -22,12 +21,18 @@ public class Player implements Serializable {
 		this.assists=0;
 		this.reds=0;
 		this.yellows=0;
-		this.id = id;
 	}
 
-	public int getId() {
-		return this.id;
+	public Player(Player toCopy) {
+		this.teamname = toCopy.getTeamname();
+		this.name = toCopy.getName();
+		this.goals = toCopy.getGoals();
+		this.assists = toCopy.getAssists();
+		this.reds = toCopy.getReds();
+		this.yellows = toCopy.getYellows();
 	}
+
+
 	public String getName() {
 		return name;
 	}

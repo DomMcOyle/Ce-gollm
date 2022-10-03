@@ -19,16 +19,10 @@ public class Constants {
 	
 	// Titolo della finestra del programma
 	public static final String WINDOW_NAME = "SuDPall";
-	public static final String HELP_WINDOW_NAME = "Aiuto";
 	
 	// Path per le risorse utilizzate nel programma
-	public static final String PATH_CLIENT_ICON = "images/icon.png";
-	public static final String PATH_GEAR_ICON = "images/gear.png";
-	public static final String PATH_HELP_ICON = "images/questionMark.png";
+	public static final String PATH_LOG = "log.txt";
 	public static final String PATH_THEME = "theme.css";
-	public static final String PATH_SERVER_INFO = "servers.info";
-	public static final String PATH_WARNING_ICON = "images/warning.png";
-	public static final String PATH_ERROR_ICON = "images/error.png";
 
 	// Contenuti dei pulsanti
 	public static final String BUTTON_NEXT = "Avanti";
@@ -88,6 +82,9 @@ public class Constants {
 	public static final String CONTENT_TEXT_NO_TOUR_INFO = "Non e' stato trovato il file \"saved_tournaments\" con i tornei salvati.\n";
 	public static final String ERROR_CANNOT_GENERATE_NEXT_ROUND = "Non è possibile generare il prossimo round: ";
 	public static final String WARN_NO_TOP = "Classifica non generata per torneo ad eliminazione.";
+	public static final String ERROR_GENERIC_MESSAGE = "E' stato riscontrato un errore durante l'esecuzione. Per maggiori informazioni"
+			+ "visionare il file di log.";
+	public static final String ERROR_PRODUCING_LOG = "Errore durante la generazione del file di log.";
 
 
 	// CSS IDs
@@ -110,6 +107,7 @@ public class Constants {
 	public static final String GENERATE_GOALS = "goals";
 	public static final String GENERATE_ASSISTS = "assists";
 	public static final String RESET_BUTTONS = "reset";
+	
 
 	
 

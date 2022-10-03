@@ -1,11 +1,13 @@
 package application;
 	
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -37,11 +39,24 @@ public class Main extends Application {
 			loadTournaments();
 			ts = new SelectionScene(new BorderPane(),Constants.WINDOWW,Constants.WINDOWH);
 			primaryStage.setScene(ts);
-			
-			
 			primaryStage.show();
+			
 		} catch(Exception e) {
-			e.printStackTrace();
+			new AlertUtil().showAlert(Constants.ERROR_GENERIC_MESSAGE, Alert.AlertType.ERROR);
+			File logFile = new File(Constants.PATH_LOG);
+			PrintStream printLog =null;
+			try {
+				printLog = new PrintStream(logFile);
+				printLog.println(java.time.LocalDateTime.now());
+				e.printStackTrace(printLog);
+			} catch (FileNotFoundException e1) {
+				new AlertUtil().showAlert(Constants.ERROR_PRODUCING_LOG, Alert.AlertType.ERROR);
+				e1.printStackTrace();
+				
+			} finally {
+				printLog.close();
+			}
+			
 		}
 	}
 	public void loadTournaments() {
@@ -76,18 +91,11 @@ public class Main extends Application {
 	
 	public void dumpTournaments() {
 			try {
-				/*
-				 * Viene impostata la serializzazione della lista di server conosciuti alla chiusura
-				 * del programma.
-				 */
+
 				FileOutputStream tourOutFile = new FileOutputStream(Constants.PATH_SERIAL_TOUR);
 				ObjectOutputStream tourOut = new ObjectOutputStream(tourOutFile);
 
-				/*
-				 * Al posto di servers, viene serializzato un ArrayList di MutableServerInformation, ovvero la controparte
-				 * mutabile di ServerInformation. Questa scelta e' stata fatta poiche' gli attributi di ServerInformation
-				 * non sono serializzabili.
-				 */
+
 				LinkedList<Tournament> toSerialize = new LinkedList<>();
 				for(TournamentWrapper e: tournaments) {
 					toSerialize.add(e.getTournament());

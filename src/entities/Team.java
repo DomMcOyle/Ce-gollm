@@ -33,6 +33,24 @@ public class Team implements Serializable, Comparable<Team>{
 		this.players = new LinkedList<>();
 	}
 	
+	public Team(Team toCopy) {
+		// copy constructor
+		this.name = toCopy.getName();
+		this.wins = new LinkedList<>();
+		for(Team w : toCopy.wins) {
+			this.wins.add(new Team(w));
+		}
+		this.draws = toCopy.getDraws();
+		this.losses = toCopy.getLosses();
+		this.scoredGoals = toCopy.getScoredGoals();
+		this.sufferedGoals = toCopy.getSufferedGoals();
+		this.penaltyPts = toCopy.getPenaltyPts();
+		this.players = new LinkedList<>();
+		for(Player p: toCopy.getPlayers()) {
+			this.players.add(new Player(p));
+		}
+	}
+	
 	
 	public int getPoints() {
 		return 3*wins.size() + draws - penaltyPts;
