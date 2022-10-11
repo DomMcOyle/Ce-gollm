@@ -84,6 +84,8 @@ public class Constants {
 	public static final String ERROR_GENERIC_MESSAGE = "E' stato riscontrato un errore durante l'esecuzione. Per maggiori informazioni"
 			+ "visionare il file di log.";
 	public static final String ERROR_PRODUCING_LOG = "Errore durante la generazione del file di log.";
+	public static final String CONFIRM_PLAY_DELETION = "Vuoi davvero rimuovere il giocatore ";
+	
 
 
 	// CSS IDs
@@ -106,7 +108,6 @@ public class Constants {
 	public static final String GENERATE_GOALS = "goals";
 	public static final String GENERATE_ASSISTS = "assists";
 	public static final String RESET_BUTTONS = "reset";
-	
 
 	
 

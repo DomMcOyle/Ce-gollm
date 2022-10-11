@@ -190,5 +190,10 @@ public class Team implements Serializable, Comparable<Team>{
 		return this.getName().equals(o.getName());
 	}
 
+	public void removePlayer(Player p) {
+		players.remove(p);
+		
+	}
+
 
 }

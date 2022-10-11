@@ -143,7 +143,7 @@ public class CreateScene extends Scene {
 			Main.setTournamentSelection();
 		});
 		nextButton.setOnAction(e -> {
-			if (tmpTeams.size()>2 && tournamentName.getText()!=null) {
+			if (tmpTeams.size()>=2 && tournamentName.getText()!=null) {
 				
 				this.tournamentName = tournamentName.getText();
 				
@@ -321,7 +321,7 @@ public class CreateScene extends Scene {
 			// and added to the team
 			int i = 0;
 			for(String plname : playersRaw) {
-				teamToAdd.addPlayer(new Player(plname, teamToAdd.getName(),i));
+				teamToAdd.addPlayer(new Player(plname, teamToAdd.getName()));
 				i++;
 			}
 			teams.add(teamToAdd);

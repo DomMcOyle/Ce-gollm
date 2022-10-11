@@ -18,13 +18,15 @@ public class ChampionshipTour extends Tournament {
 	HashMap<Character, LinkedList<Match[]>> first_round;
 	HashMap<Character, LinkedList<Match[]>> second_round;
 	boolean with_groups;
-	EliminationTour showdown;
+	EliminationTour showdownA;
+	EliminationTour showdownB;
 	
 	
 	public ChampionshipTour(String name, LinkedList<Team> teams, boolean with_return, HashMap<Character, LinkedList<Team>> groups) {
 		
 		super(name, teams, with_return, (groups==null?Constants.CREATION_CHAMP:Constants.CREATION_GROUP));
-		this.showdown = null;
+		this.showdownA = null;
+		this.showdownB = null;
 		first_round = new HashMap<>();
 		if(with_return) {
 			second_round = new HashMap<>();

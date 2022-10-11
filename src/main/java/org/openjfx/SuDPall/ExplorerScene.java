@@ -14,7 +14,6 @@ import org.openjfx.entities.Tournament;
 import org.openjfx.entities.TournamentException;
 import org.openjfx.utility.Constants;
 
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -251,8 +250,32 @@ public class ExplorerScene extends Scene {
 					yellows.setText(String.valueOf(p.getYellows()));}
 				});
 				
+				Button deleteButton = new Button(Constants.BUTTON_DELETE);
+				deleteButton.setId(Constants.ID_SMALL_BUTTON);
+				deleteButton.setOnAction(ee->{
+					boolean isConfirmed = new AlertUtil().showAlert(Constants.CONFIRM_PLAY_DELETION + p.getName() +"?", Alert.AlertType.CONFIRMATION);
+					if(isConfirmed) {
+						selectedTeam.removePlayer(p);
+						teamSelector.fireEvent(e);
+					}
+				});
+				playersPane.add(deleteButton, 13, i);
 				i++;
 			}
+			TextField newPlayer = new TextField();
+			Button addButton = new Button(Constants.BUTTON_ADD);
+			addButton.setId(Constants.ID_SMALL_BUTTON);
+			addButton.setOnAction(ee->{
+				if(newPlayer.getText()!=null && !newPlayer.getText().trim().equals("")) {
+					Player toAdd = new Player(newPlayer.getText(), selectedTeam.getName());
+					selectedTeam.addPlayer(toAdd);
+					teamSelector.fireEvent(e);
+				}
+			});
+			
+			playersPane.add(newPlayer, 0, selectedTeam.getPlayers().size()+1);
+			playersPane.add(addButton, 1, selectedTeam.getPlayers().size()+1);
+			
 		
 		});
 		

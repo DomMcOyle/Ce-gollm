@@ -14,7 +14,7 @@ public class Player implements Serializable {
 	private int yellows;
 	
 	
-	public Player(String name, String teamname, int id) {
+	public Player(String name, String teamname) {
 		this.teamname = teamname;
 		this.name = name;
 		this.goals=0;
