@@ -193,16 +193,24 @@ public class ChampionshipTour extends Tournament {
 		return tempList;
 	}
 	
-	public EliminationTour getShowdown() {
-		return this.showdown;
+	public EliminationTour getShowdown(String type) {
+		if(type.equals(Constants.SHOWDOWN_A)) {
+			return this.showdownA;
+		} else {
+			return this.showdownB;
+		}
 	}
 	
-	public void setShowdown(EliminationTour showdown) {
-		this.showdown = showdown;
+	public void setShowdown(String type, EliminationTour showdown) {
+		if (type.equals(Constants.SHOWDOWN_A)) {
+			this.showdownA = showdown;
+		} else if (type.equals(Constants.SHOWDOWN_B)) {
+			this.showdownB = showdown;
+		}
 	}
 
 	public boolean hasShowdown() {
-		return this.showdown != null;
+		return this.showdownA != null || this.showdownB != null;
 	}
 	
 	public boolean hasEnded() {

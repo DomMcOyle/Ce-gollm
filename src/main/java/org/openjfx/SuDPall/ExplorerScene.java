@@ -39,7 +39,9 @@ public class ExplorerScene extends Scene {
 	Button showEliminationButton;
 	BorderPane framePane;
 	Tournament toShow;
-	Tournament switcheroo;
+	ChampionshipTour mainTournament;
+	EliminationTour tempShowdownA;
+	int state;
 	
 	public ExplorerScene(BorderPane mainPane, double dim, double dim2, Tournament toShow) {
 		super(mainPane, dim, dim2);
@@ -47,6 +49,8 @@ public class ExplorerScene extends Scene {
 		mainPane.getStylesheets().add(getClass().getResource(Constants.PATH_THEME).toString());
 		this.framePane = mainPane;
 		this.toShow = toShow;
+		this.state = 0;
+		this.tempShowdownA = null; 
 		
 		HBox topRow = new HBox();
 		topRow.setAlignment(Pos.CENTER);
@@ -73,16 +77,24 @@ public class ExplorerScene extends Scene {
 		topRow.getChildren().addAll(showTeamButton,
 				showMatchesButton, showTopTeamsButton, showTopPlayersButton);
 		if(!toShow.getKind().equals(Constants.CREATION_ELIM)) {
-			showEliminationButton = new Button(Constants.BUTTON_SHOW_ELIM);
-			if(!((ChampionshipTour)toShow).hasShowdown()) {
+			
+			this.mainTournament = ((ChampionshipTour)toShow);
+			showEliminationButton = new Button(Constants.SHOWDOWN_NAME);
+			if(!mainTournament.hasShowdown()) {
 				showEliminationButton.setDisable(true);
-			} else {
-				this.switcheroo = ((ChampionshipTour)toShow).getShowdown();
 			}
+			if(mainTournament.getShowdown(Constants.SHOWDOWN_B) != null) {
+				showEliminationButton.setText(Constants.SHOWDOWN_A_NAME);
+			}
+			
+			
+			
 			topRow.getChildren().add(showEliminationButton);
 			showEliminationButton.setOnAction(e->{
 				switchTournament();
 			});
+		} else {
+			this.mainTournament = null; // the attribute main tournament is unused if the tournament is an elimination one 
 		}
 		
 		mainPane.setTop(topRow);
@@ -756,10 +768,15 @@ public class ExplorerScene extends Scene {
 		Label selectTeam = new Label(Constants.SELECT_TEAM_LABEL);
 		selectTeam.setId(Constants.ID_PREDICTION_LABEL);
 		
+		//these dummy buttons are used in order to keep the different behaviours of back and forth buttons in this scene
+		// an implementation with EventHandler was tried, but it was too messy as the various buttons interact too much with the function
+		Button backButton1 = new Button(); // first button that allows to go back to the exploration scene
+		Button backButton2 = new Button(); // second back button used in case of transition between the selection of teams in the two showdown
+		Button nextButton1 = new Button(); // first next button
+		Button nextButton2 = new Button(); // second next button
+		
+		// actual back and next button
 		Button backButton = new Button(Constants.BUTTON_BACK);
-		backButton.setOnAction(e->{
-			Main.setThisScene(this);
-		});
 		Button nextButton = new Button(Constants.BUTTON_NEXT);
 		nextButton.setDisable(true);
 		
@@ -767,14 +784,16 @@ public class ExplorerScene extends Scene {
 		lowerPane.setAlignment(Pos.CENTER_RIGHT);
 		lowerPane.setPadding(new Insets(25, 25, 25, 25));
 		lowerPane.setSpacing(5d);
-		CheckBox returnCheck = new CheckBox(Constants.CHECK_RETURN);
-		lowerPane.getChildren().addAll(returnCheck, backButton, nextButton);
+		CheckBox returnCheck = new CheckBox(Constants.CHECK_RETURN); // checkbox for return for the first showdown
+		CheckBox returnCheckB = new CheckBox(Constants.CHECK_RETURN); // checkbox for return for the second showdown
+		CheckBox doubleElimCheck = new CheckBox(Constants.CHECK_DOUBLE_ELIM);
+		lowerPane.getChildren().addAll(doubleElimCheck, returnCheck, backButton, nextButton);
 		
 		frame.setTop(selectTeam);
 		frame.setCenter(scrollGrid);
 		frame.setBottom(lowerPane);
 		
-		int begin = 0; // row where to start to put checkbozes
+		int begin = 0; // row where to start to put checkboxes
 		if(groupArr.length!=1) {
 			// block needed to deal with arrangements of teams in different groups + to print group labels
 			begin = 1;
@@ -797,7 +816,7 @@ public class ExplorerScene extends Scene {
 			teamName.setOnAction(e->{
 				// function enabling the "next" button only when an appropriate number of teams are chosen
 				int numSel = checkboxes.stream().mapToInt(c -> {
-					if(c.isSelected()) {
+					if(c.isSelected() && !c.isDisabled()) {
 						return 1;
 					} else {
 						return 0;}}).sum();
@@ -822,25 +841,97 @@ public class ExplorerScene extends Scene {
 		}
 		
 		Scene selectTeams = new Scene(frame, Constants.WINDOWW, Constants.WINDOWH);
-		nextButton.setOnAction(e->{
-			LinkedList<Team> selectedTeams = new LinkedList<>();
+
+
+		nextButton1.setOnAction(e->{
+			if(!doubleElimCheck.isSelected()) {
+				LinkedList<Team> selectedTeams = new LinkedList<>();
+				for(int i=0; i<checkboxes.size(); i++) {
+					if(checkboxes.get(i).isSelected()) {
+						// here we create copies of teams, in order to keep them non interacting
+						selectedTeams.add(new Team(teamList.get(i)));
+					}
+				}
+				setEncounters(selectedTeams, null,returnCheck.isSelected(), false, selectTeams);
+				
+			} else {
+				int index = lowerPane.getChildren().indexOf(returnCheck);
+				lowerPane.getChildren().remove(returnCheck);
+				lowerPane.getChildren().add(index, returnCheckB);
+				
+				for(int i=0; i<checkboxes.size(); i++) {
+					if(checkboxes.get(i).isSelected()) {
+						// here we create copies of teams, in order to keep them non interacting
+						checkboxes.get(i).setDisable(true);
+					}
+				}
+				// disable the decision
+				doubleElimCheck.setDisable(true);
+				
+				// update back behaviour (reset everything)
+				backButton.setOnAction(backButton2.getOnAction());
+				nextButton.setOnAction(nextButton2.getOnAction());
+				nextButton.setDisable(true);
+				
+
+			}
+			
+		});
+		
+		nextButton2.setOnAction(e->{
+			LinkedList<Team> selectedTeamsA = new LinkedList<>();
+			LinkedList<Team> selectedTeamsB = new LinkedList<>();
 			for(int i=0; i<checkboxes.size(); i++) {
-				if(checkboxes.get(i).isSelected()) {
+				if(checkboxes.get(i).isDisabled()) {
+					selectedTeamsA.add(new Team(teamList.get(i)));
+				}
+				if(!checkboxes.get(i).isDisabled() && checkboxes.get(i).isSelected()) {
 					// here we create copies of teams, in order to keep them non interacting
-					selectedTeams.add(new Team(teamList.get(i)));
+					selectedTeamsB.add(new Team(teamList.get(i)));
 				}
 			}
-			setEncounters(selectedTeams, selectTeams, returnCheck.isSelected());
+
+			setEncounters(selectedTeamsA,selectedTeamsB,returnCheck.isSelected(),returnCheckB.isSelected(), selectTeams);
 		});
+		
+		backButton1.setOnAction(e->{
+			Main.setThisScene(this);
+		});
+		
+		backButton2.setOnAction(goBack->{
+			for(int i=0; i<checkboxes.size(); i++) {
+				if(checkboxes.get(i).isSelected() && !checkboxes.get(i).isDisabled()) {
+					checkboxes.get(i).setSelected(false);
+				}
+				if(checkboxes.get(i).isDisabled()) {
+					checkboxes.get(i).setDisable(false);
+				}
+			}
+			
+			doubleElimCheck.setDisable(false);
+			int index = lowerPane.getChildren().indexOf(returnCheckB);
+			lowerPane.getChildren().remove(returnCheckB);
+			lowerPane.getChildren().add(index, returnCheck);
+			returnCheckB.setSelected(false);
+			
+			backButton.setOnAction(backButton1.getOnAction());
+			nextButton.setOnAction(nextButton1.getOnAction());
+			nextButton.setDisable(false);
+		});
+		backButton.setOnAction(backButton1.getOnAction());
+		nextButton.setOnAction(nextButton1.getOnAction());
+		
 		Main.setThisScene(selectTeams);
 	}
+	
+
 	
 	public boolean power2(int x) {
 		// returns true if x is a power of 2 and different from 1
 		return x != 0 && x!=1 && ((x & (x - 1)) == 0);
 	}
 	
-	private void setEncounters(LinkedList<Team> selectedTeams, Scene backScene, boolean withReturn) {
+	private void setEncounters(LinkedList<Team> selectedTeamsA, LinkedList<Team> selectedTeamsB, boolean withReturnA, boolean withReturnB, Scene backScene) {
 		// function needed to show the group/match selection panel
 		// duplicate of the function for setting the encounters when creating a torunament
 		// quick solution to avoid to change everithing again
@@ -854,7 +945,17 @@ public class ExplorerScene extends Scene {
 		internalPane.setPadding(new Insets(30,30,30,30));
 		
 		Label topTeam = new Label(Constants.CREATION_TEAM_PROMPT);
-		Label topKind = new Label("Match");
+		String suffix;
+		if(selectedTeamsB==null) {
+			if(tempShowdownA!=null) {
+				suffix = Constants.SHOWDOWN_B_NAME;
+			} else {
+				suffix = "";
+			}
+		} else {
+			suffix = Constants.SHOWDOWN_A_NAME;
+		}
+		Label topKind = new Label("Match " + suffix);
 		topTeam.setId(Constants.ID_PREDICTION_LABEL);
 		topKind.setId(Constants.ID_PREDICTION_LABEL);
 		internalPane.add(topTeam, 0, 0);
@@ -862,7 +963,7 @@ public class ExplorerScene extends Scene {
 		
 		int i = 1;
 		LinkedList<TextField> textFieldList = new LinkedList<>();
-		for(Team t: selectedTeams) {
+		for(Team t: selectedTeamsA) {
 			// setting match selection screen
 			internalPane.add(new Label(t.getName()), 0,i);
 			TextField tf = new TextField();
@@ -879,12 +980,19 @@ public class ExplorerScene extends Scene {
 		buttonsSpace.setAlignment(Pos.CENTER);
 		buttonsSpace.setPadding(new Insets(25, 25, 25, 25));
 		buttonsSpace.setSpacing(5d);
+		pane.setBottom(buttonsSpace);
 		
 		Button next = new Button(Constants.BUTTON_NEXT);
 		Button back = new Button(Constants.BUTTON_BACK);
 		back.setOnAction(e -> {
+			if(this.tempShowdownA!=null) {
+				this.tempShowdownA = null;
+			}
 			Main.setThisScene(backScene);
 		});
+		
+		
+		Scene encounter = new Scene(pane, Constants.WINDOWW, Constants.WINDOWH);	
 		
 		next.setOnAction(e -> {
 			// checkCorrectness is used to check whether the id of the match is correct or if there are more or less than 2
@@ -896,19 +1004,19 @@ public class ExplorerScene extends Scene {
 			for(int j=0; j<textFieldList.size(); j++) {
 				discriminant = textFieldList.get(j).getText().trim();
 				if(discriminant.equals("") || discriminant == null) {
-					new AlertUtil().showAlert("Match non assegnato alla squadra " + selectedTeams.get(j).getName(), Alert.AlertType.ERROR);
+					new AlertUtil().showAlert("Match non assegnato alla squadra " + selectedTeamsA.get(j).getName(), Alert.AlertType.ERROR);
 				}
 				
 				if(!checkCorrectness.containsKey(discriminant)) {
-						if(Integer.parseInt(discriminant)<1 || Integer.parseInt(discriminant)> selectedTeams.size()/2) {
+						if(Integer.parseInt(discriminant)<1 || Integer.parseInt(discriminant)> selectedTeamsA.size()/2) {
 							new AlertUtil().showAlert("Identificativo del match inserito non valido, riprova. (Inserito: " +
-									discriminant + ", permessi tra 1 e " + selectedTeams.size()/2
+									discriminant + ", permessi tra 1 e " + selectedTeamsA.size()/2
 									, Alert.AlertType.ERROR);
 							return;
 						}
 					//update check correctness
 					checkCorrectness.put(discriminant, 1);
-					tmpPairings.put(selectedTeams.get(j).getName(), discriminant);
+					tmpPairings.put(selectedTeamsA.get(j).getName(), discriminant);
 							
 				} else {
 						checkCorrectness.put(discriminant, checkCorrectness.get(discriminant)+1);
@@ -919,7 +1027,7 @@ public class ExplorerScene extends Scene {
 							return;
 						}
 							
-						tmpPairings.put(selectedTeams.get(j).getName(), discriminant);
+						tmpPairings.put(selectedTeamsA.get(j).getName(), discriminant);
 				}
 				
 			}
@@ -932,11 +1040,11 @@ public class ExplorerScene extends Scene {
 			}
 			
 			HashSet<String> placed = new HashSet<>();
-			Match[] arrPairings = new Match[selectedTeams.size()/2];
-			for(Team t: selectedTeams) {
+			Match[] arrPairings = new Match[selectedTeamsA.size()/2];
+			for(Team t: selectedTeamsA) {
 				
 				if (!placed.contains(t.getName())) {
-					for(Team t2: selectedTeams) {					
+					for(Team t2: selectedTeamsA) {					
 						if(tmpPairings.get(t.getName()).equals(tmpPairings.get(t2.getName())) && t!=t2) {
 							placed.add(t.getName());
 							placed.add(t2.getName());
@@ -947,12 +1055,32 @@ public class ExplorerScene extends Scene {
 				}
 			}
 			// championship parsing
-			((ChampionshipTour)this.toShow).setShowdown(new EliminationTour(toShow.getName()+" (E)", 
-					selectedTeams,withReturn ,arrPairings));
+			if(tempShowdownA==null) {
+				
+				if(selectedTeamsB==null) {
+					mainTournament.setShowdown(Constants.SHOWDOWN_A, new EliminationTour(mainTournament.getName() 
+							+ " (" +Constants.SHOWDOWN_NAME+")", 
+							selectedTeamsA,withReturnA,arrPairings));
+					
+					showEliminationButton.setText(Constants.SHOWDOWN_NAME);	
+					
+				} else {
+					this.tempShowdownA = new EliminationTour(mainTournament.getName() 
+							+ " (" +Constants.SHOWDOWN_A_NAME+")", 
+							selectedTeamsA,withReturnA,arrPairings);
+					setEncounters(selectedTeamsB, null, withReturnB, false, encounter);
+					return;
+				}
+			} else {
+				mainTournament.setShowdown(Constants.SHOWDOWN_A, tempShowdownA);
+				mainTournament.setShowdown(Constants.SHOWDOWN_B, new EliminationTour(mainTournament.getName()
+						+ " (" +Constants.SHOWDOWN_B_NAME+")", 
+						selectedTeamsA,withReturnA,arrPairings));
+				showEliminationButton.setText(Constants.SHOWDOWN_A_NAME);
+			}
+			
 			// here we enable the elimination phase button
 			showEliminationButton.setDisable(false);
-			// set the "switcheroo" value
-			this.switcheroo = ((ChampionshipTour)this.toShow).getShowdown();
 			// empty the center pane
 			this.framePane.setCenter(null);
 			// reset buttons
@@ -962,23 +1090,41 @@ public class ExplorerScene extends Scene {
 		});
 		
 		buttonsSpace.getChildren().addAll(back,next);
-		pane.setBottom(buttonsSpace);
-		
-		Scene encounter = new Scene(pane, Constants.WINDOWW, Constants.WINDOWH);		
+			
 		Main.setThisScene(encounter);
 	}
 	
 	private void switchTournament() {
-		Tournament temp = this.toShow;
-		this.toShow = switcheroo;
-		switcheroo = temp;
-		if(this.showEliminationButton.getText().equals(Constants.BUTTON_SHOW_ELIM)) {
-			this.showEliminationButton.setText(Constants.BUTTON_SHOW_CHAMP);
+		switch(state) {
+		case 0: // the main tournament is shown
+			this.toShow = mainTournament.getShowdown(Constants.SHOWDOWN_A);
+			
+			if(this.mainTournament.getShowdown(Constants.SHOWDOWN_B)!=null) {
+				this.showEliminationButton.setText(Constants.SHOWDOWN_B_NAME );
+			} else {
+				this.showEliminationButton.setText( Constants.BUTTON_SHOW_CHAMP);
+			}
 			Main.setTitle(Constants.WINDOW_NAME + " - " + toShow.getName());
-		} else {
-			this.showEliminationButton.setText(Constants.BUTTON_SHOW_ELIM);
+			break;
+		case 1: // the showdown A is shown
+			if(this.mainTournament.getShowdown(Constants.SHOWDOWN_B)!=null) {
+				this.toShow = mainTournament.getShowdown(Constants.SHOWDOWN_B);
+				this.showEliminationButton.setText(Constants.BUTTON_SHOW_CHAMP);
+				Main.setTitle(Constants.WINDOW_NAME + " - " + toShow.getName());
+			} else {
+				this.toShow = this.mainTournament;
+				this.showEliminationButton.setText(Constants.SHOWDOWN_NAME);
+				Main.setTitle(Constants.WINDOW_NAME + " - " + toShow.getName() + " (" + toShow.getKind() + ")");
+				this.state ++; // this line allows skipping case 2
+			}
+			break;
+		case 2: // the showdown B is shown
+			this.toShow = this.mainTournament;
+			this.showEliminationButton.setText(Constants.SHOWDOWN_A_NAME);
 			Main.setTitle(Constants.WINDOW_NAME + " - " + toShow.getName() + " (" + toShow.getKind() + ")");
+
 		}
+		this.state = (this.state + 1) % 3; // update status rotation
 		this.framePane.setCenter(null);
 		updateButtons(Constants.RESET_BUTTONS);
 		

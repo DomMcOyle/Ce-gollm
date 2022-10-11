@@ -194,6 +194,10 @@ public class Team implements Serializable, Comparable<Team>{
 		players.remove(p);
 		
 	}
+	
+	public String toString() {
+		return this.name;
+	}
 
 
 }

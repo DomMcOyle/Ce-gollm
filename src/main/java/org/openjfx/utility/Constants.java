@@ -37,12 +37,12 @@ public class Constants {
 	public static final String BUTTON_PLUS = "+";
 	public static final String BUTTON_MINUS = "-";
 	public static final String CHECK_RETURN = "Con ritorno";
+	public static final String CHECK_DOUBLE_ELIM = "Doppia eliminatoria";
 	public static final String BUTTON_UPDATE = "Aggiorna";
 	public static final String BUTTON_GENERATE_NEW_ROUND = "Prossimo Round";
 	public static final String BUTTON_GOALS = "Classifica goal";
 	public static final String BUTTON_ASSISTS = "Classifica assist";
 	public static final String BUTTON_GENERATE_ELIM = "Genera eliminatoria";
-	public static final String BUTTON_SHOW_ELIM = "Eliminatoria";
 	public static final String BUTTON_SHOW_CHAMP = "Campionato";
 
 	
@@ -108,6 +108,12 @@ public class Constants {
 	public static final String GENERATE_GOALS = "goals";
 	public static final String GENERATE_ASSISTS = "assists";
 	public static final String RESET_BUTTONS = "reset";
+	public static final String SHOWDOWN_A = "A";
+	public static final String SHOWDOWN_B = "B";
+	public static final String SHOWDOWN_A_NAME = "Eliminatoria A";
+	public static final String SHOWDOWN_B_NAME = "Eliminatoria B";
+	public static final String SHOWDOWN_NAME = "Eliminatoria";
+
 
 	
 
