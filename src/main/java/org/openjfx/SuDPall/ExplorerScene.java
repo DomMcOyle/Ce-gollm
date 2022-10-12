@@ -852,6 +852,8 @@ public class ExplorerScene extends Scene {
 						selectedTeams.add(new Team(teamList.get(i)));
 					}
 				}
+				System.out.println(selectedTeams);
+				System.out.println("aa");
 				setEncounters(selectedTeams, null,returnCheck.isSelected(), false, selectTeams);
 				
 			} else {

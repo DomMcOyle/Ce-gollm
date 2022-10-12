@@ -9,12 +9,13 @@ import org.openjfx.utility.Constants;
  * ASSUMPTIONS THAT CAN BE MADE ON TEAM:
  * - no team can be called " " except for the dummy one
  * - no two teams can have the same name (case sensitive)
+ * - due to teams having unique names, the wins list can contain only their name
  */
 public class Team implements Serializable, Comparable<Team>{
 
 	private static final long serialVersionUID = -7550579557975939694L;
 	private String name;
-	private LinkedList<Team> wins;
+	private LinkedList<String> wins;
 	private int draws;
 	private int losses;
 	private int scoredGoals;
@@ -37,8 +38,8 @@ public class Team implements Serializable, Comparable<Team>{
 		// copy constructor
 		this.name = toCopy.getName();
 		this.wins = new LinkedList<>();
-		for(Team w : toCopy.wins) {
-			this.wins.add(new Team(w));
+		for(String w : toCopy.wins) {
+			this.wins.add(w);
 		}
 		this.draws = toCopy.getDraws();
 		this.losses = toCopy.getLosses();
@@ -66,7 +67,7 @@ public class Team implements Serializable, Comparable<Team>{
 	}
 
 	public void addWin(Team looser) {
-		this.wins.add(looser);
+		this.wins.add(looser.getName());
 	}
 
 	public int getDraws() {
@@ -124,13 +125,13 @@ public class Team implements Serializable, Comparable<Team>{
 		return players.stream().mapToInt(p -> p.getYellows()).sum();
 	}
 	private int checkVictories(Team t) {
-		if(this.wins.contains(t)) {
-			if(t.wins.contains(this)) {
+		if(this.wins.contains(t.getName())) {
+			if(t.wins.contains(this.getName())) {
 				return 0;
 			} else {
 				return -1;
 			}
-		} else if(t.wins.contains(this)) {
+		} else if(t.wins.contains(this.getName())) {
 			return 1;
 		} else {
 			return 0;
@@ -181,8 +182,8 @@ public class Team implements Serializable, Comparable<Team>{
 
 	public void removeWin(Team outteam) {
 		// removes a win from the list of wins
-		if( this.wins.contains(outteam) ) {
-			this.wins.remove(outteam);
+		if( this.wins.contains(outteam.getName()) ) {
+			this.wins.remove(outteam.getName());
 		}
 	}
 	
